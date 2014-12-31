@@ -1,3 +1,14 @@
+/*
+ * JHPCN-DF - Data compression library based on
+ *            Jointed Hierarchical Precision Compression Number Data Format
+ *
+ * Copyright (c) 2014-2015 Advanced Institute for Computational Science, RIKEN.
+ * All rights reserved.
+ *
+ */
+
+// @file FileInfoManager.h
+
 #ifndef FILE_MANAGER_H
 #define FILE_MANAGER_H
 #include <string>
