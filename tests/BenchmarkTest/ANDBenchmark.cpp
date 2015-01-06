@@ -1,14 +1,3 @@
-/*
- * JHPCN-DF - Data compression library based on
- *            Jointed Hierarchical Precision Compression Number Data Format
- *
- * Copyright (c) 2014-2015 Advanced Institute for Computational Science, RIKEN.
- * All rights reserved.
- *
- */
-
-// @file ZeroPaddingBenchmark.cpp
-
 #include <typeinfo>
 #include <iostream>
 #include <fstream>
@@ -19,40 +8,39 @@
 #include <omp.h>
 #include "benchmark_common.h"
 
-
 template <typename T>
-class ZeroPaddingBenchmark
+class ANDBenchmark
 {
     public:
-    ZeroPaddingBenchmark(int argc, char *argv[]):name("ZeroPadding"), num_test(100)
+    ANDBenchmark(int argc, char *argv[]):name("AND"), num_test(100)
     {
         double t0=omp_get_wtime();
-        if(argc !=3)
+        if(argc !=2)
         {
-            std::cerr<<"usage: "<<argv[0]<<" size_of_data_in_MiB number_of_bits"<<std::endl;
+            std::cerr<<"usage: "<<argv[0]<<" size_of_data_in_MiB"<<std::endl;
             exit(1);
         }
         num_data=std::stoull(argv[1])*1024*1024/sizeof(T);
-        n_bit=std::stoi(argv[2]);
 
         random_data = initialize_data<T>(num_data);
         result = new T [num_data];
         data1  = new T [num_data];
+        data2  = new T [num_data];
         copy_data(num_data, random_data, data1);
+        zero_clear(num_data, data2);
         double t1=omp_get_wtime()-t0;
         std::cout << "Test data type = "<< typeid(T).name()<<std::endl;
         std::cout << "Test data size = "<< argv[1] <<" MiByte"<<std::endl;
-        std::cout << "zero padding width = "<< n_bit <<" bit"<<std::endl;
         std::cout << "Elapsed time for initialize: "<<t1<<" sec"<<std::endl;
         std::cout << std::endl;
         std::cout << "====" << this->name << " Benchmark start ====" << std::endl;
     }
-    ~ZeroPaddingBenchmark()
+    ~ANDBenchmark()
     {
         delete [] result;
         delete [] data1;
+        delete [] data2;
     }
-
     double benchmark0()
     {
         double t0=omp_get_wtime();
@@ -61,33 +49,19 @@ class ZeroPaddingBenchmark
 #pragma omp parallel for
             for(int i=0;i<num_data; i++)
             {
-		real4byte tmp;
-		tmp.real=data1[i];
-		tmp.integer = (tmp.integer >> n_bit)<<n_bit;
-                result[i] = tmp.real;
+	        real4byte tmp1;
+	        real4byte tmp2;
+	        tmp1.real=data1[i];
+	        tmp2.real=data2[i];
+	        tmp1.integer &= tmp2.integer;
+                result[i] = tmp1.real;
             }
         }
         double t1= omp_get_wtime()-t0;
         TearDown();
         return t1/num_test;
     }
-    double benchmark1()
-    {
-        double t0=omp_get_wtime();
-        for(int test=0; test<num_test; test++)
-        {
-#pragma omp parallel for
-            for(int i=0;i<num_data; i++)
-            {
-                result[i] = n_bit_zero_padding(data1[i], n_bit);
-            }
-        }
-        double t1= omp_get_wtime()-t0;
-        TearDown();
-        return t1/num_test;
-    }
-
-    template <void (*ZERO_PADDING)(const T*, T*, const unsigned int&), int NB>
+    template <void (*AND)(const T*, const T*, T*), int NB>
     double benchmark2()
     {
         double t0=omp_get_wtime();
@@ -96,7 +70,7 @@ class ZeroPaddingBenchmark
 #pragma omp parallel for
             for(int i=0;i<num_data; i+=NB)
             {
-                ZERO_PADDING(&(data1[i]), &(result[i]), n_bit);
+                AND(&(data1[i]), &(data2[i]), &(result[i]));
             }
         }
         double t1= omp_get_wtime()-t0;
@@ -108,18 +82,22 @@ class ZeroPaddingBenchmark
     T* result;
     T* random_data;
     T* data1;
+    T* data2;
     const std::string name;
     size_t num_data;
     const int num_test;
-    int n_bit;
     void re_initialize()
     {
         copy_data(num_data, random_data, data1);
+        zero_clear(num_data, data2);
     }
     void TearDown()
     {
         std::cerr<<"src1   :";
         output_binary(std::cerr, data1[num_data/2]);
+        std::cerr<<"\n";
+        std::cerr<<"src2   :";
+        output_binary(std::cerr, data2[num_data/2]);
         std::cerr<<"\n";
         std::cerr<<"result :";
         output_binary(std::cerr, result[num_data/2]);
@@ -130,19 +108,19 @@ class ZeroPaddingBenchmark
 
 int main(int argc, char *argv[])
 {
-    auto bm=ZeroPaddingBenchmark<REAL_TYPE>(argc, argv);
+
+    auto bm=ANDBenchmark<REAL_TYPE>(argc, argv);
     std::cout.width(10);
     std::cout.precision(8);
     
-    std::cout << "Elapsed time for ZeroPadding<1>:   "<< bm.benchmark2<n_bit_zero_padding<1>, 1 >() <<" sec"<<std::endl;
- //   std::cout << "Elapsed time for ZeroPadding<2>:   "<< bm.benchmark2<n_bit_zero_padding<2>, 2 >() <<" sec"<<std::endl;
- //   std::cout << "Elapsed time for ZeroPadding<4>:   "<< bm.benchmark2<n_bit_zero_padding<4>, 4 >() <<" sec"<<std::endl;
- //   std::cout << "Elapsed time for ZeroPadding<8>:   "<< bm.benchmark2<n_bit_zero_padding<8>, 8 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for ZeroPadding<16>:  "<< bm.benchmark2<n_bit_zero_padding<16>,16>() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for AND<1>:   "<< bm.benchmark2<real_and<1>, 1 >() <<" sec"<<std::endl;
+//    std::cout << "Elapsed time for AND<2>:   "<< bm.benchmark2<real_and<2>, 2 >() <<" sec"<<std::endl;
+//    std::cout << "Elapsed time for AND<4>:   "<< bm.benchmark2<real_and<4>, 4 >() <<" sec"<<std::endl;
+//    std::cout << "Elapsed time for AND<8>:   "<< bm.benchmark2<real_and<8>, 8 >() <<" sec"<<std::endl;
+//    std::cout << "Elapsed time for AND<16>:  "<< bm.benchmark2<real_and<16>,16>() <<" sec"<<std::endl;
 #if REAL_TYPE == float
-//    std::cout << "Elapsed time for primitive ZeroPading: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
+//    std::cout << "Elapsed time for primitive AND: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
 #endif
- //   std::cout << "Elapsed time for normal ZeroPadding: "<< bm.benchmark1() <<" sec"<<std::endl;
 
     return 0;
 }

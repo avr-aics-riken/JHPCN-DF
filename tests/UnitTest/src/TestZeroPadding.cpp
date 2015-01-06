@@ -10,143 +10,434 @@
 // @file TestZeroPadding.cpp
 
 #include "gtest/gtest.h"
+#include <cmath>
 #include "Utility.h"
 
-class FloatZeroPaddingTest : public ::testing::TestWithParam<float>{};
-class DoubleZeroPaddingTest : public ::testing::TestWithParam<double>{};
-class FloatZeroPadding3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<float, int> >
+class FloatZeroPaddingTest : public ::testing::Test
 {
     protected:
+        FloatZeroPaddingTest():max_size(128){}
         virtual void SetUp(void)
         {
-            block_size=std::tr1::get<1>(GetParam());
-            switch (block_size) {
-                case 1:
-                    func=&n_bit_zero_padding<1>;
-                    break;
-                case 2:
-                    func=&n_bit_zero_padding<2>;
-                    break;
-                case 4:
-                    func=&n_bit_zero_padding<4>;
-                    break;
-                case 8:
-                    func=&n_bit_zero_padding<8>;
-                    break;
-                case 16:
-                    func=&n_bit_zero_padding<16>;
-                    break;
-                case 32:
-                    func=&n_bit_zero_padding<32>;
-                    break;
-                case 64:
-                    func=&n_bit_zero_padding<64>;
-                    break;
-            }
-            src1=new float[block_size];
-            result=new float[block_size];
-            for(int i=0;i<block_size; i++)
+            src=new float[max_size];
+            dst=new float[max_size];
+            for(int i=0; i<max_size; i++)
             {
-                src1[i]=std::tr1::get<0>(GetParam());
+                src[i]=FLT_MAX;
+                dst[i]=0;
             }
         }
-
         virtual void TearDown(void)
         {
-            delete [] src1;
-            delete [] result;
+            delete [] src;
+            delete [] dst;
         }
-
-        float *src1;
-        float *result;
-        void (*func)(const float*, float*, const unsigned int&);
-        int block_size;
+        const int max_size;
+        float* src;
+        float* dst;
 };
 
-class DoubleZeroPadding3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<double, int> >
+TEST_F(FloatZeroPaddingTest, NormalImplimentation)
 {
-    protected:
-        virtual void SetUp(void)
-        {
-            block_size=std::tr1::get<1>(GetParam());
-            switch (block_size) {
-                case 1:
-                    func=&n_bit_zero_padding<1>;
-                    break;
-                case 2:
-                    func=&n_bit_zero_padding<2>;
-                    break;
-                case 4:
-                    func=&n_bit_zero_padding<4>;
-                    break;
-                case 8:
-                    func=&n_bit_zero_padding<8>;
-                    break;
-                case 16:
-                    func=&n_bit_zero_padding<16>;
-                    break;
-                case 32:
-                    func=&n_bit_zero_padding<32>;
-                    break;
-                case 64:
-                    func=&n_bit_zero_padding<64>;
-                    break;
-            }
-            src1=new double[block_size];
-            result=new double[block_size];
-            for(int i=0;i<block_size; i++)
-            {
-                src1[i]=std::tr1::get<0>(GetParam());
-            }
-        }
-
-        virtual void TearDown(void)
-        {
-            delete [] src1;
-            delete [] result;
-        }
-
-        double *src1;
-        double *result;
-        void (*func)(const double*, double*, const unsigned int&);
-        int block_size;
-};
-
-
-TEST_P(FloatZeroPaddingTest, ZeroBit)
-{
-    float value=GetParam();
-    EXPECT_EQ(n_bit_zero_padding(value, 0), value);
-}
-TEST_P(DoubleZeroPaddingTest, ZeroBit)
-{
-    double value=GetParam();
-    EXPECT_EQ(n_bit_zero_padding(value,0 ), value);
-}
-TEST_P(FloatZeroPadding3OperandTest, ZeroBit3Operand)
-{
-    func(src1, result, 0);
-    for(int i=0; i<block_size;i++)
-    {
-        EXPECT_EQ(result[i], src1[i]);
-    }
-}
-TEST_P(DoubleZeroPadding3OperandTest, ZeroBit3Operand)
-{
-    func(src1, result, 0);
-    for(int i=0; i<block_size;i++)
-    {
-        EXPECT_EQ(result[i], src1[i]);
-    }
+    EXPECT_EQ(FLT_MAX, n_bit_zero_padding(src[0], 0));
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, n_bit_zero_padding(src[0], 1));
+    EXPECT_EQ(std::pow(2,127), n_bit_zero_padding(src[0], 23));
+    EXPECT_EQ(0, n_bit_zero_padding(src[0], 31));
+    EXPECT_EQ(0, n_bit_zero_padding(src[0], 32));
 }
 
-INSTANTIATE_TEST_CASE_P(FloatZeroPadding3OperandTest,   FloatZeroPadding3OperandTest, ::testing::Combine(
-            ::testing::Values(FLT_MIN, FLT_MAX, 0.0F, -FLT_MIN, -FLT_MAX, 256.0F,  -256.0F),
-            ::testing::Values(1,2,4,8,16,32,64)
-            ));
-INSTANTIATE_TEST_CASE_P(DoubleZeroPadding3OperandTest, DoubleZeroPadding3OperandTest, ::testing::Combine(
-            ::testing::Values(DBL_MIN, DBL_MAX, 0.0L, -DBL_MIN, -DBL_MAX, 2014.0L, -2014.0L),
-            ::testing::Values(1,2,4,8,16,32,64)
-            ));
-INSTANTIATE_TEST_CASE_P(FloatZeroPaddingTest, FloatZeroPaddingTest, ::testing::Values(FLT_MIN, FLT_MAX, 0.0F, -FLT_MIN, -FLT_MAX, 256.0F,  -256.0F));
-INSTANTIATE_TEST_CASE_P(DoubleZeroPaddingTest, DoubleZeroPaddingTest, ::testing::Values(DBL_MIN, DBL_MAX, 0.0L, -DBL_MIN, -DBL_MAX, 2014.0L, -2014.0L));
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL1)
+{
+#define VL 1
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL2)
+{
+#define VL 2
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL4)
+{
+#define VL 4
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL8)
+{
+#define VL 8
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL16)
+{
+#define VL 16
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL32)
+{
+#define VL 32
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL64)
+{
+#define VL 64
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+TEST_F(FloatZeroPaddingTest, SIMDOrientedImplimentationVL128)
+{
+#define VL 128
+    n_bit_zero_padding<VL>(src, dst, 0);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 1);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 23);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 31);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_zero_padding<VL>(src, dst, 32);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL1)
+{
+#define VL 1
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL2)
+{
+#define VL 2
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL4)
+{
+#define VL 4
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL8)
+{
+#define VL 8
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL16)
+{
+#define VL 16
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL32)
+{
+#define VL 32
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL64)
+{
+#define VL 64
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+
+TEST_F(FloatZeroPaddingTest, AndMaskImplimentationVL128)
+{
+#define VL 128
+    n_bit_mask<VL,0>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(FLT_MAX, dst[i]);
+
+    n_bit_mask<VL,1>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_FLOAT_EQ(FLT_MAX-FLT_MIN, dst[i]);
+
+    n_bit_mask<VL,23>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(std::pow(2,127), dst[i]);
+
+    n_bit_mask<VL,31>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+
+    n_bit_mask<VL,32>(src, dst);
+    for(int i=0; i<VL;i++)
+    EXPECT_EQ(0, dst[i]);
+#undef VL
+}
+

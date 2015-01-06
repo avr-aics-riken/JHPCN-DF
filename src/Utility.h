@@ -11,9 +11,11 @@
 
 #ifndef UTILITY_H
 #define UTILITY_H
-#include <stdint.h>
 #include <bitset>
+#include <iomanip>
 #include <iostream>
+#include <cstdint>
+#include <float.h>
 
 namespace
 {
@@ -32,15 +34,32 @@ namespace
     union real4byte
     {
         float real;
-        int32_t integer;
+        uint32_t integer;
     };
 
     //@brief double のbit演算用共用体
     union real8byte
     {
         double real;
-        int64_t integer;
+        uint64_t integer;
     };
+
+    //@brief floatを2進数に変換してstdoutへ出力
+    void output_binary(std::ostream& ss, const float& data)
+    {
+        real4byte tmp;
+        tmp.real=data;
+        ss << static_cast<std::bitset<32> >(tmp.integer);
+    }
+
+    //@brief doubleを2進数に変換してstdoutへ出力
+    void output_binary(std::ostream& ss, const double& data)
+    {
+        real8byte tmp;
+        tmp.real=data;
+        ss << static_cast<std::bitset<64> >(tmp.integer);
+    }
+
 
     //@brief 下位nビットを0埋めした値を返す(32bit版）
     float n_bit_zero_padding(const float& value,  const unsigned int& n_bit)
@@ -60,7 +79,7 @@ namespace
         return tmp.real;
     }
 
-    //@brief srcの下位nビットを0埋めした値をdstに格納する (32bit版)
+    //@brief srcの下位nビットを0埋めした値をdstに格納する (32bit版 ビットシフト使用)
     template <unsigned int N_WORD>
     void n_bit_zero_padding(const float* src, float* dst, const unsigned int& n_bit)
     {
@@ -73,7 +92,7 @@ namespace
         }
     }
 
-    //@brief srcの下位nビットを0埋めした値をdstに格納する (64bit版)
+    //@brief srcの下位nビットを0埋めした値をdstに格納する (64bit版 ビットシフト使用)
     template <unsigned int N_WORD>
     void n_bit_zero_padding(const double* src, double* dst, const unsigned int& n_bit)
     {
@@ -86,6 +105,35 @@ namespace
         }
     }
 
+    //@brief srcの下位nビットを0埋めした値をdstに格納する (32bit版 論理和使用)
+    template <unsigned int N_WORD, unsigned int N_BIT>
+    void n_bit_mask(const float* src, float* dst)
+    {
+        real4byte tmp[N_WORD];
+        real4byte mask;
+        mask.integer=0xffffffff<<N_BIT;
+        for(unsigned int i=0;i<N_WORD;i++)
+        {
+            tmp[i].real=src[i];
+            tmp[i].integer &= mask.integer;
+            dst[i]=tmp[i].real;
+        }
+    }
+
+    //@brief srcの下位nビットを0埋めした値をdstに格納する (64bit版 論理和使用)
+    template <unsigned int N_WORD, unsigned int N_BIT>
+    void n_bit_mask(const double* src, double* dst)
+    {
+        real8byte tmp[N_WORD];
+        real8byte mask;
+        mask.integer=1<<N_BIT;
+        for(unsigned int i=0;i<N_WORD;i++)
+        {
+            tmp[i].real=src[i];
+            tmp[i].integer &= mask.integer;
+            dst[i]=tmp[i].real;
+        }
+    }
 
     //@brief src1とsrc2のXORを返す（32bit版）
     float real_xor(const float& src1, const float& src2)
@@ -199,24 +247,6 @@ namespace
             tmp1[i].integer|=tmp2[i].integer;
             dst[i]=tmp1[i].real;
         }
-    }
-
-
-
-    //@brief floatを2進数に変換してstdoutへ出力
-    void output_binary(const float& data)
-    {
-        real4byte tmp;
-        tmp.real=data;
-        std::cout << static_cast<std::bitset<32> >(tmp.integer)<<std::endl;
-    }
-
-    //@brief doubleを2進数に変換してstdoutへ出力
-    void output_binary(const double& data)
-    {
-        real4byte tmp;
-        tmp.real=data;
-        std::cerr << static_cast<std::bitset<64> >(tmp.integer)<<std::endl;
     }
 }//end of unnamed namespace
 #endif
