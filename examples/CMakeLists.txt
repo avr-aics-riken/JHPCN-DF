@@ -27,13 +27,22 @@ C99()
 ###################################################################
 # find libraries
 ###################################################################
-
-# OpenMP
-find_package(OpenMP REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+# check OpenMP support and add option
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindOpenMP_quick_hack_fx10()
+else()
+    find_package(OpenMP REQUIRED)
+endif()
+set(CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${OpenMP_CXX_FLAGS}")
+set(CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${OpenMP_C_FLAGS}")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
 
 # zlib
-find_package(ZLIB    REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindZlib_quick_hack_fx10()
+else()
+    find_package (ZLIB REQUIRED)
+endif()
 
 # JHPCNDF
 set(JHPCNDF_INCLUDE_DIRS

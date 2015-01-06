@@ -58,9 +58,10 @@ private:
 int main(int argc, char *argv[])
 {
     double t0=omp_get_wtime();
-    if(argc !=3)
+    if(argc < 3)
     {
-        std::cerr<<"usage: "<<argv[0]<<" number_of_data max_tolerance"<<std::endl;
+        std::cerr<<"usage: "<<argv[0]<<" number_of_data min_tolerance encoder_name..." << std::endl;
+        std::cerr<<"  encoder=[normal | byte_aligned | linear_search | binary_search | nbit_filter]" << std::endl;
         exit(1);
     }
 
@@ -81,25 +82,27 @@ int main(int argc, char *argv[])
     std::cerr << "Elapsed time for initialize: "<<t_init<<" sec"<<std::endl;
 
     std::vector<std::string> encorders;
-    encorders.push_back("normal");
-    encorders.push_back("byte_aligned");
-    encorders.push_back("linear_search");
-    encorders.push_back("binary_search");
+    for(int i=3; i<argc;i++)
+    {
+        encorders.push_back(argv[i]);
+    }
 
     std::vector<std::string> filenames;
     const std::string filename("encoded");
     while(tolerance<=1)
     {
+        std::cerr<< "tolerance = "<<tolerance<<std::endl;
         for(std::vector<std::string>::iterator it=encorders.begin(); it!=encorders.end(); ++it)
         {
-            std::cerr<< std::endl<<"Test for "<<*it<<" encoder. tolerance = "<<tolerance<<std::endl;
+            std::cerr<<"Test for "<<*it<<" encoder"<<std::endl;
 
             std::ostringstream oss;
             oss<<tolerance;
-            filenames.push_back(filename+"_"+*it+oss.str()+".gz");
-            int key=JHPCNDF::fopen(filename+"_"+*it+oss.str()+".gz", filename+"_"+*it+oss.str()+"lower"+".gz", "w+b");
+            filenames.push_back(filename+"_"+*it+"_"+oss.str()+".gz");
+            int key=JHPCNDF::fopen(filename+"_"+*it+"_"+oss.str()+".gz", filename+"_"+*it+"_"+oss.str()+"lower"+".gz", "w+b");
             JHPCNDF::fwrite(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, *it, "gzip", true);
             JHPCNDF::fclose(key);
+            std::cerr<< std::endl;
         }
         tolerance*=10;
     }

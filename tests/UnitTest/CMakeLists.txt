@@ -23,13 +23,20 @@ endif()
 ###################################################################
 # find libraries
 ###################################################################
-
 # check OpenMP support and add option
-find_package(OpenMP REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindOpenMP_quick_hack_fx10()
+else()
+    find_package(OpenMP REQUIRED)
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 # zlib
-find_package (ZLIB REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindZlib_quick_hack_fx10()
+else()
+    find_package (ZLIB REQUIRED)
+endif()
 
 ###################################################################
 # show build settings
@@ -45,7 +52,10 @@ include_directories(${PROJECT_SOURCE_DIR}/gtest-1.7.0/include)
 ###################################################################
 # include files
 ###################################################################
-include_directories(${PROJECT_SOURCE_DIR}/../../src)
+include_directories(
+    ${PROJECT_SOURCE_DIR}/../../src
+    ${ZLIB_INCLUDE_DIRS}
+    )
 
 ###################################################################
 # build & install
@@ -53,9 +63,10 @@ include_directories(${PROJECT_SOURCE_DIR}/../../src)
 add_executable(UnitTest
     ${PROJECT_SOURCE_DIR}/gtest-1.7.0/src/gtest_main.cc
     ${PROJECT_SOURCE_DIR}/src/TestXOR.cpp
-    #    ${PROJECT_SOURCE_DIR}/src/TestOR.cpp
+    ${PROJECT_SOURCE_DIR}/src/TestOR.cpp
     ${PROJECT_SOURCE_DIR}/src/TestAND.cpp
     ${PROJECT_SOURCE_DIR}/src/TestZeroPadding.cpp
     ${PROJECT_SOURCE_DIR}/src/TestFileInfoManager.cpp
+    ${PROJECT_SOURCE_DIR}/src/TestZlibIO.cpp
     )
-target_link_libraries(UnitTest gtest)
+target_link_libraries(UnitTest gtest ${ZLIB_LIBRARIES})

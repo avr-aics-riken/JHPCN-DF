@@ -29,13 +29,20 @@ endif()
 ###################################################################
 # find libraries
 ###################################################################
-
 # check OpenMP support and add option
-find_package(OpenMP REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindOpenMP_quick_hack_fx10()
+else()
+    find_package(OpenMP REQUIRED)
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 # zlib
-find_package (ZLIB REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindZlib_quick_hack_fx10()
+else()
+    find_package (ZLIB REQUIRED)
+endif()
 
 # JHPCNDF
 set(JHPCNDF_INCLUDE_DIRS

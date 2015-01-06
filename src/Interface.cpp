@@ -111,7 +111,7 @@ namespace
         }else{
             io=IOFactory("stdio");
         }
-        io->fread(data, sizeof(T), size, fp_upper);
+        size_t read_size=io->fread(data, sizeof(T), size, fp_upper);
         if(fp_lower!=NULL)
         {
             T* work=new T [size];
@@ -126,6 +126,7 @@ namespace
             delete work;
         }
         delete io;
+        return read_size;
     }
 }//end of unnamed namespace
 

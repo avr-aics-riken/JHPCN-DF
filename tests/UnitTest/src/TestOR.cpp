@@ -12,44 +12,7 @@
 #include "gtest/gtest.h"
 #include "Utility.h"
 
-
-class FloatorTest : public ::testing::TestWithParam<float> {};
-class DoubleorTest : public ::testing::TestWithParam<double > {};
-
-TEST_P(FloatorTest, WithZero)
-{
-    float value=GetParam();
-    EXPECT_EQ(real_or(0, value), value);
-}
-TEST_P(DoubleorTest, WithZero)
-{
-    double value=GetParam();
-    EXPECT_EQ(real_or(0, value), value);
-}
-
-TEST_P(FloatorTest, SameData)
-{
-    float value=GetParam();
-    EXPECT_EQ(real_or(value, value), 0);
-}
-TEST_P(DoubleorTest, SameData)
-{
-    double value=GetParam();
-    EXPECT_EQ(real_or(value, value), 0);
-}
-
-TEST_P(FloatorTest, WithMinusZero)
-{
-    float value=GetParam();
-    EXPECT_EQ(real_or(value, -0.0F), -value);
-}
-TEST_P(DoubleorTest, WithMinusZero)
-{
-    double value=GetParam();
-    EXPECT_EQ(real_or(value, -0.0L), -value);
-}
-
-class Floator3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<float, int> >
+class FloatOr3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<float, int> >
 {
     protected:
         virtual void SetUp(void)
@@ -102,7 +65,7 @@ class Floator3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<floa
         int block_size;
 };
 
-class Doubleor3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<double, int> >
+class DoubleOr3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<double, int> >
 {
     protected:
         virtual void SetUp(void)
@@ -155,41 +118,41 @@ class Doubleor3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<dou
         int block_size;
 };
 
-TEST_P(Floator3OperandTest, WithZero3Operand)
+TEST_P(FloatOr3OperandTest, Zero)
 {
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], src1[i]);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
-TEST_P(Doubleor3OperandTest, WithZero3Operand)
+TEST_P(DoubleOr3OperandTest, Zero)
 {
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], src1[i]);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
 
-TEST_P(Floator3OperandTest, SameData3Operand)
+TEST_P(FloatOr3OperandTest, SameData)
 {
     func(src1, src1, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], 0.0F);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
-TEST_P(Doubleor3OperandTest, SameData3Operand)
+TEST_P(DoubleOr3OperandTest, SameData)
 {
     func(src1, src1, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], 0.0L);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
 
-TEST_P(Floator3OperandTest, WithMinusZero3Operand)
+TEST_P(FloatOr3OperandTest, MinusZero)
 {
     for(int i=0; i<block_size;i++)
     {
@@ -198,10 +161,10 @@ TEST_P(Floator3OperandTest, WithMinusZero3Operand)
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], -src1[i]);
+        EXPECT_FLOAT_EQ(-src1[i], result[i]);
     }
 }
-TEST_P(Doubleor3OperandTest, WithMinusZero3Operand)
+TEST_P(DoubleOr3OperandTest, MinusZero)
 {
     for(int i=0; i<block_size;i++)
     {
@@ -210,16 +173,14 @@ TEST_P(Doubleor3OperandTest, WithMinusZero3Operand)
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], -src1[i]);
+        EXPECT_DOUBLE_EQ(-src1[i], result[i]);
     }
 }
-INSTANTIATE_TEST_CASE_P(Floator3OperandTest,   Floator3OperandTest, ::testing::Combine(
-            ::testing::Values(FLT_MIN, FLT_MAX, 0.0F, -FLT_MIN, -FLT_MAX, 256.0F,  -256.0F),
+INSTANTIATE_TEST_CASE_P(FloatOr3OperandTest,   FloatOr3OperandTest, ::testing::Combine(
+            ::testing::Values(FLT_MIN, FLT_MAX, 0.0F, 256.0F),
             ::testing::Values(1,2,4,8,16,32,64)
             ));
-INSTANTIATE_TEST_CASE_P(Doubleor3OperandTest, Doubleor3OperandTest, ::testing::Combine(
-            ::testing::Values(DBL_MIN, DBL_MAX, 0.0L, -DBL_MIN, -DBL_MAX, 2014.0L, -2014.0L),
+INSTANTIATE_TEST_CASE_P(DoubleOr3OperandTest, DoubleOr3OperandTest, ::testing::Combine(
+            ::testing::Values(DBL_MIN, DBL_MAX, 0.0L, 2014.0L),
             ::testing::Values(1,2,4,8,16,32,64)
             ));
-INSTANTIATE_TEST_CASE_P(FloatorTest,   FloatorTest, ::testing::Values(FLT_MIN, FLT_MAX, 0.0F, -FLT_MIN, -FLT_MAX, 256.0F,  -256.0F));
-INSTANTIATE_TEST_CASE_P(DoubleorTest, DoubleorTest, ::testing::Values(DBL_MIN, DBL_MAX, 0.0L, -DBL_MIN, -DBL_MAX, 2014.0L, -2014.0L));

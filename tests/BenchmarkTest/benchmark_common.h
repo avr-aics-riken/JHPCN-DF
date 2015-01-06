@@ -11,28 +11,46 @@
 
 #ifndef BENCHMARK_COMMON_H
 #define BENCHMARK_COMMON_H
+#if __cplusplus >= 201103L
 #include <random>
+#endif
 #include <string>
 
 #ifndef REAL_TYPE
 #define REAL_TYPE float
 #endif
 
-template <typename T>
-T* initialize_data(const size_t& num_data)
+namespace
 {
-    std::random_device seed_gen;
-    std::mt19937 engine(seed_gen());
-    std::uniform_real_distribution<> dist(-1.0, 1.0);
-
-    T* data= new T[num_data];
-    for(size_t i=0; i<num_data; i++)
+    template<typename T>
+    class RandomNumber
     {
-        data[i]=dist(engine);
-    }
-
-    return data;
-}
+public:
+            RandomNumber()
+            {
+#if __cplusplus >= 201103L
+                std::random_device seed_gen;
+                engine=std::mt19937_64(seed_gen());
+                dist=std::uniform_real_distribution<T>(0.0,1.0);
+#endif
+            }
+            void operator ()(const size_t& length,  T* data)
+            {
+                for(size_t i=0; i<length; i++)
+                {
+#if __cplusplus >= 201103L
+                    data[i]=dist(engine);
+#else
+                    data[i]=(T)std::rand()/((T)(RAND_MAX)+1);
+#endif
+                }
+            }
+private:
+#if __cplusplus >= 201103L
+            std::mt19937_64 engine;
+            std::uniform_real_distribution<T> dist;
+#endif
+    };
 
 template <typename T>
 void copy_data(const size_t& num_data, T* src, T* dst)
@@ -50,5 +68,6 @@ void zero_clear(const size_t& num_data, T* data)
     {
         data[i]=0;
     }
+}
 }
 #endif

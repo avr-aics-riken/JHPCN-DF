@@ -30,25 +30,32 @@
 #    PerformanceTest、DumpTool、サンプルコードをdouble用にビルドする(デフォルトはfloat)
 #
 
-
 cmake_minimum_required(VERSION 2.6)
 project(JHPCNDFlib CXX Fortran)
 
 set(CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/CompileOptionSelector.cmake)
 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     ADD_DEFINITIONS(-DDEBUG)
 else()
-    CompileOptionSelector()
     ADD_DEFINITIONS(-DTIME_MEASURE)
 endif()
+
+include(${PROJECT_SOURCE_DIR}/cmake/CompileOptionSelector.cmake)
+CompileOptionSelector()
+CPP11()
+FreeForm()
+
 
 ##############################################
 # 依存するパッケージを探す
 ##############################################
 
 # check OpenMP support and add option
-find_package(OpenMP REQUIRED)
+if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
+    FindOpenMP_quick_hack_fx10()
+else()
+    find_package(OpenMP REQUIRED)
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 option(build_examples         "build examples" OFF)
@@ -56,14 +63,14 @@ option(build_unit_tests       "build test program" OFF)
 option(build_performance_test "build performance test program" OFF)
 
 #ビルド設定の表示
-message( STATUS "Destination PATH: " ${CMAKE_INSTALL_PREFIX})
-message( STATUS "build examples: " build_examples)
-message( STATUS "build unit test program: " build_unit_tests)
-message( STATUS "build performance test program: " build_performance_test)
-message( STATUS "CMAKE_CXX_COMPILER: " ${CMAKE_CXX_COMPILER})
-message( STATUS "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-message( STATUS "CMAKE_Fortran_COMPILER: " ${CMAKE_Fortran_COMPILER})
-message( STATUS "CMAKE_Fortran_FLAGS: " ${CMAKE_Fortran_FLAGS})
+message( STATUS "Destination PATH: "               ${CMAKE_INSTALL_PREFIX})
+message( STATUS "build examples: "                 ${build_examples})
+message( STATUS "build unit test program: "        ${build_unit_tests})
+message( STATUS "build performance test program: " ${build_performance_test})
+message( STATUS "CMAKE_CXX_COMPILER: "             ${CMAKE_CXX_COMPILER})
+message( STATUS "CMAKE_CXX_FLAGS: "                ${CMAKE_CXX_FLAGS})
+message( STATUS "CMAKE_Fortran_COMPILER: "         ${CMAKE_Fortran_COMPILER})
+message( STATUS "CMAKE_Fortran_FLAGS: "            ${CMAKE_Fortran_FLAGS})
 
 
 #####################################################

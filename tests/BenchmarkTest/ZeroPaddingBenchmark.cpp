@@ -32,10 +32,12 @@ class ZeroPaddingBenchmark
             std::cerr<<"usage: "<<argv[0]<<" size_of_data_in_MiB number_of_bits"<<std::endl;
             exit(1);
         }
-        num_data=std::stoull(argv[1])*1024*1024/sizeof(T);
-        n_bit=std::stoi(argv[2]);
+        num_data=std::atol(argv[1])*1024*1024/sizeof(T);
+        n_bit=std::atoi(argv[2]);
 
-        random_data = initialize_data<T>(num_data);
+        random_data= new T [num_data];
+        RandomNumber<REAL_TYPE> generator;
+        generator(num_data, random_data);
         result = new T [num_data];
         data1  = new T [num_data];
         copy_data(num_data, random_data, data1);
@@ -130,19 +132,19 @@ class ZeroPaddingBenchmark
 
 int main(int argc, char *argv[])
 {
-    auto bm=ZeroPaddingBenchmark<REAL_TYPE>(argc, argv);
+    ZeroPaddingBenchmark<REAL_TYPE> bm=ZeroPaddingBenchmark<REAL_TYPE>(argc, argv);
     std::cout.width(10);
     std::cout.precision(8);
     
     std::cout << "Elapsed time for ZeroPadding<1>:   "<< bm.benchmark2<n_bit_zero_padding<1>, 1 >() <<" sec"<<std::endl;
- //   std::cout << "Elapsed time for ZeroPadding<2>:   "<< bm.benchmark2<n_bit_zero_padding<2>, 2 >() <<" sec"<<std::endl;
- //   std::cout << "Elapsed time for ZeroPadding<4>:   "<< bm.benchmark2<n_bit_zero_padding<4>, 4 >() <<" sec"<<std::endl;
- //   std::cout << "Elapsed time for ZeroPadding<8>:   "<< bm.benchmark2<n_bit_zero_padding<8>, 8 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for ZeroPadding<16>:  "<< bm.benchmark2<n_bit_zero_padding<16>,16>() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for ZeroPadding<2>:   "<< bm.benchmark2<n_bit_zero_padding<2>, 2 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for ZeroPadding<4>:   "<< bm.benchmark2<n_bit_zero_padding<4>, 4 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for ZeroPadding<8>:   "<< bm.benchmark2<n_bit_zero_padding<8>, 8 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for ZeroPadding<16>:  "<< bm.benchmark2<n_bit_zero_padding<16>,16>() <<" sec"<<std::endl;
 #if REAL_TYPE == float
 //    std::cout << "Elapsed time for primitive ZeroPading: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
 #endif
- //   std::cout << "Elapsed time for normal ZeroPadding: "<< bm.benchmark1() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for normal ZeroPadding: "<< bm.benchmark1() <<" sec"<<std::endl;
 
     return 0;
 }

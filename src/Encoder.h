@@ -27,6 +27,7 @@ namespace JHPCNDF
             virtual void make_upper_bits(const size_t& length, const T* const src, T* const dst) const=0;
             virtual void make_lower_bits(const size_t& length, const T* const src, T* const dst, T* const dst_lower) const
             {
+#pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
                     real_xor<1>(&(src[i]), &(dst[i]), &(dst_lower[i]));
@@ -56,6 +57,7 @@ namespace JHPCNDF
             }
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#pragma omp parallel for
                 for(size_t i=0;i<length;i++)
                 {
                     dst[i]=src[i];
@@ -77,6 +79,7 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
                     unsigned int split_position=get_initial_split_position(src[i]);
@@ -140,6 +143,7 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
                     unsigned int split_position=get_initial_split_position();
@@ -170,7 +174,7 @@ namespace JHPCNDF
                 {
                     return 23;
                 }else{
-                    return 54;
+                    return 52;
                 }
             }
             void update_split_position(unsigned int* split_position) const
@@ -185,7 +189,29 @@ namespace JHPCNDF
     class ByteAligndEncoder:public Encoder<T>
     {
         public:
-            ByteAligndEncoder(const float& arg_tolerance): tolerance(arg_tolerance) {}
+            ByteAligndEncoder(const float& arg_tolerance): tolerance(arg_tolerance)
+            {
+                if (sizeof(T) == 4)
+                {
+                    split_positions=new int [5];
+                    split_positions[0]=23;
+                    split_positions[1]=16;
+                    split_positions[2]=8;
+                    split_positions[3]=4;
+                    split_positions[4]=0;
+                }else{
+                    split_positions=new int [9];
+                    split_positions[0]=52;
+                    split_positions[1]=48;
+                    split_positions[2]=40;
+                    split_positions[3]=32;
+                    split_positions[4]=24;
+                    split_positions[5]=16;
+                    split_positions[6]=8;
+                    split_positions[7]=4;
+                    split_positions[8]=0;
+                }
+            }
             void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const
             {
                 make_upper_bits(length, src, dst);
@@ -194,9 +220,11 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
-                    unsigned int split_position=get_initial_split_position();
+                    int j=0;
+                    unsigned int split_position=split_positions[j];
 #ifdef DEBUG
                     if(i==0 || i==length/2)
                     {
@@ -206,7 +234,7 @@ namespace JHPCNDF
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     while(! is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance))
                     {
-                        update_split_position(&split_position);
+                        split_position=split_positions[++j];
                         n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     }
 #ifdef DEBUG
@@ -218,23 +246,11 @@ namespace JHPCNDF
 #endif
                 }
             }
-            unsigned int get_initial_split_position(void) const
-            {
-                if (sizeof(T) == 4)
-                {
-                    return 16; // 23/8*8
-                }else{
-                    return 48; // 54/8*8
-                }
-            }
-            void update_split_position(unsigned int* split_position) const
-            {
-                (*split_position)-=8;
-            }
             const float tolerance;
+            int*  split_positions;
     };
 
-    //@brief 二分探査で23bitから下を順に探していくエンコーダ
+    //@brief 二分探査で分割位置を探索するエンコーダ
     template <typename T>
     class BinarySearchEncoder:public Encoder<T>
     {
@@ -248,9 +264,12 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
-                    unsigned int split_position=get_initial_split_position();
+                    unsigned int left = get_fraction_length();
+                    unsigned int split_position=left/2; //center
+                    unsigned int right= 0;
 #ifdef DEBUG
                     if(i==0 || i==length/2)
                     {
@@ -258,9 +277,21 @@ namespace JHPCNDF
                     }
 #endif
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
-                    for(int stage=2;stage<get_initial_split_position()*2;stage*=2)
+                    while(left >= right)
                     {
-                        update_split_position(&split_position, stage, is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance));
+#ifdef DEBUG
+                        if(i==0 || i==length/2)
+                        {
+                            std::cerr<< "left, split_position, right = "<<left<<","<<split_position <<","<<right<<std::endl;
+                        }
+#endif
+                        if(is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance))
+                        {
+                            right=split_position+1;
+                        }else{
+                            left=split_position-1;
+                        }
+                        split_position=(left+right)/2;
                         n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     }
 
@@ -273,23 +304,19 @@ namespace JHPCNDF
 #endif
                 }
             }
-            unsigned int get_initial_split_position(void) const
+            unsigned int get_fraction_length(void) const
             {
                 if (sizeof(T) == 4)
                 {
-                    return 12; // 23/8*8
+                    return 23;
                 }else{
-                    return 27; // 54/8*8
+                    return 52;
                 }
-            }
-            void update_split_position(unsigned int* split_position, const int& stage, const bool& is_converged) const
-            {
-                (*split_position)=is_converged ? (*split_position)+get_initial_split_position()/stage : (*split_position)-get_initial_split_position()/stage;
             }
             const float tolerance;
     };
 
-    //@brief 特定の分割位置以下をのビットを0埋めするエンコーダ
+    //@brief 特定の分割位置以下のビットを0埋めするエンコーダ
     template <typename T>
     class NbitFilter:public Encoder<T>
     {
@@ -303,6 +330,7 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#pragma omp parallel for
                 for (int i=0;i<length; i++)
                 {
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
