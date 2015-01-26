@@ -41,7 +41,7 @@ namespace JHPCNDF
     class zlibIO :public IO
     {
         public:
-            // memo windowBitsは15(=MAX_WBITS)を指定した時はzlib形式、16+MAX_WBITSを指定した時はgzip形式での圧縮となる
+            // [memo] windowBitsは15(=MAX_WBITS)を指定した時はzlib形式、16+MAX_WBITSを指定した時はgzip形式での圧縮となる
             zlibIO() :buffer_size(32768), level(Z_DEFAULT_COMPRESSION), strategy(Z_DEFAULT_STRATEGY), windowBits(16+MAX_WBITS) {}
             
             //@brief zlibで圧縮されたデータを読み込んで伸長したうえでptrへ書き込む
@@ -72,7 +72,7 @@ namespace JHPCNDF
                     int old_avail_out=z_st.avail_out;
                     z_st.avail_in = ::fread(buffer, 1, (size_t)buffer_size, stream);
                     if (ferror(stream)) {
-                        deflateEnd(&z_st);
+                        inflateEnd(&z_st);
                         std::cerr<<"file read error."<<std::endl;
                         return 0;
                     }
@@ -86,6 +86,7 @@ namespace JHPCNDF
                     std::cerr<<"fatal error occurred during zlib decompression"<<std::endl;
                     return 0;
                 }
+                inflateEnd(&z_st);
                 return output_size;
             }
 
@@ -164,7 +165,7 @@ namespace JHPCNDF
         if(name == "gzip")
         {
             io=new zlibIO();
-        }else if(name == "stdio"){
+        }else if(name == "stdio" || name == "none"){
             io=new stdIO;
         }else{
             std::cerr<<"invalid io class name specified."<<std::endl;

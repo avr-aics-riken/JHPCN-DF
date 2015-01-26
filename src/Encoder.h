@@ -33,26 +33,14 @@ namespace JHPCNDF
                 }
             }
         protected:
-            void debug_write(const size_t& length, const T* const org, const T* const upper, const T* const lower) const
+            void debug_write(const size_t& index, const T* const org, const T* const upper) const
             {
-                std::cerr<<"original[0]   =";
-                output_binary(org[0]);
-                std::cerr<<"upper_bits[0] =";
-                output_binary(upper[0]);
-                if(lower!=NULL)
-                {
-                    std::cerr<<"lower_bits[0] =";
-                    output_binary(lower[0]);
-                }
-                std::cerr<<"original["<<length/2<<"]   =";
-                output_binary(org[length/2]);
-                std::cerr<<"upper_bits["<<length/2<<"] =";
-                output_binary(upper[length/2]);
-                if(lower!=NULL)
-                {
-                    std::cerr<<"lower_bits["<<length/2<<"] =";
-                    output_binary(lower[length/2]);
-                }
+                std::cerr<<"original["<<index<<"]   = ";
+                output_binary(std::cerr, org[index]);
+                std::cerr<<"\n";
+                std::cerr<<"upper_bits["<<index<<"] = ";
+                output_binary(std::cerr, upper[index]);
+                std::cerr<<"\n";
             }
     };
 
@@ -85,9 +73,6 @@ namespace JHPCNDF
             {
                 make_upper_bits(length, src, dst);
                 if(dst_lower != NULL) this->make_lower_bits(length, src, dst, dst_lower);
-#ifdef DEBUG
-                this->debug_write(length, src, dst, dst_lower);
-#endif
             }
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
@@ -95,17 +80,30 @@ namespace JHPCNDF
                 for (size_t i=0; i<length; i++)
                 {
                     unsigned int split_position=get_initial_split_position(src[i]);
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "initial split_position : "<<split_position <<std::endl;
+                    }
+#endif
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     while(! is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance))
                     {
                         update_split_position(&split_position);
                         n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     }
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "final split_position   : "<<split_position <<std::endl;
+                        this->debug_write(i, src, dst);
+                    }
+#endif
                 }
             }
             unsigned int get_initial_split_position(const T& value) const
             {
-                static double  logallo = std::log(tolerance)/std::log(2.0);
+                double logallo = std::log(tolerance)/std::log(2.0);
                 int tmp;
                 frexp(value, &tmp);
                 int tmp2=(int)(-logallo+tmp-1);
@@ -128,6 +126,60 @@ namespace JHPCNDF
             const float tolerance;
     };
 
+    //@ 線形探査で切り分け位置を探すエンコーダ
+    template <typename T>
+    class LinearSearchEncoder:public Encoder<T>
+    {
+        public:
+            LinearSearchEncoder(const float& arg_tolerance): tolerance(arg_tolerance) {}
+            void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const
+            {
+                make_upper_bits(length, src, dst);
+                if(dst_lower != NULL) this->make_lower_bits(length, src, dst, dst_lower);
+            }
+        private:
+            void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
+            {
+                for (size_t i=0; i<length; i++)
+                {
+                    unsigned int split_position=get_initial_split_position();
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "initial split_position : "<<split_position <<std::endl;
+                    }
+#endif
+                    n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
+                    while(! is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance))
+                    {
+                        update_split_position(&split_position);
+                        n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
+                    }
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "final split_position   : "<<split_position <<std::endl;
+                        this->debug_write(i, src, dst);
+                    }
+#endif
+                }
+            }
+            unsigned int get_initial_split_position(void) const
+            {
+                if (sizeof(T) == 4)
+                {
+                    return 23;
+                }else{
+                    return 54;
+                }
+            }
+            void update_split_position(unsigned int* split_position) const
+            {
+                --(*split_position);
+            }
+            const float tolerance;
+    };
+
     //@ 上位bitと下位bitの切り分けを8bit単位にまるめたエンコーダ
     template <typename T>
     class ByteAligndEncoder:public Encoder<T>
@@ -138,9 +190,6 @@ namespace JHPCNDF
             {
                 make_upper_bits(length, src, dst);
                 if(dst_lower != NULL) this->make_lower_bits(length, src, dst, dst_lower);
-#ifdef DEBUG
-                this->debug_write(length, src, dst, dst_lower);
-#endif
             }
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
@@ -148,12 +197,25 @@ namespace JHPCNDF
                 for (size_t i=0; i<length; i++)
                 {
                     unsigned int split_position=get_initial_split_position();
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "initial split_position : "<<split_position <<std::endl;
+                    }
+#endif
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     while(! is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance))
                     {
                         update_split_position(&split_position);
                         n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                     }
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "final split_position   : "<<split_position <<std::endl;
+                        this->debug_write(i, src, dst);
+                    }
+#endif
                 }
             }
             unsigned int get_initial_split_position(void) const
@@ -172,7 +234,62 @@ namespace JHPCNDF
             const float tolerance;
     };
 
-    //@brief 特定の分割位置で強制的に0埋めするエンコーダ
+    //@brief 二分探査で23bitから下を順に探していくエンコーダ
+    template <typename T>
+    class BinarySearchEncoder:public Encoder<T>
+    {
+        public:
+            BinarySearchEncoder(const float& arg_tolerance): tolerance(arg_tolerance) {}
+            void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const
+            {
+                make_upper_bits(length, src, dst);
+                if(dst_lower != NULL) this->make_lower_bits(length, src, dst, dst_lower);
+            }
+        private:
+            void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
+            {
+                for (size_t i=0; i<length; i++)
+                {
+                    unsigned int split_position=get_initial_split_position();
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "initial split_position : "<<split_position <<std::endl;
+                    }
+#endif
+                    n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
+                    for(int stage=2;stage<get_initial_split_position()*2;stage*=2)
+                    {
+                        update_split_position(&split_position, stage, is_converged<T, 1>(&(src[i]), &(dst[i]), tolerance));
+                        n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
+                    }
+
+#ifdef DEBUG
+                    if(i==0 || i==length/2)
+                    {
+                        std::cerr<< "final split_position   : "<<split_position <<std::endl;
+                        this->debug_write(i, src, dst);
+                    }
+#endif
+                }
+            }
+            unsigned int get_initial_split_position(void) const
+            {
+                if (sizeof(T) == 4)
+                {
+                    return 12; // 23/8*8
+                }else{
+                    return 27; // 54/8*8
+                }
+            }
+            void update_split_position(unsigned int* split_position, const int& stage, const bool& is_converged) const
+            {
+                (*split_position)=is_converged ? (*split_position)+get_initial_split_position()/stage : (*split_position)-get_initial_split_position()/stage;
+            }
+            const float tolerance;
+    };
+
+    //@brief 特定の分割位置以下をのビットを0埋めするエンコーダ
     template <typename T>
     class NbitFilter:public Encoder<T>
     {
@@ -184,9 +301,9 @@ namespace JHPCNDF
                 if(dst_lower != NULL) this->make_lower_bits(length, src, dst, dst_lower);
             }
         private:
-            void make_upper_bits(const size_t& length, const T* const src, T* const dst)
+            void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
-                for (size_t i=0; i<length; i++)
+                for (int i=0;i<length; i++)
                 {
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
                 }
@@ -203,8 +320,15 @@ namespace JHPCNDF
             enc=new NormalEncoder<T>(tolerance);
         }else if(name == "byte_aligned"){
             enc=new ByteAligndEncoder<T>(tolerance);
+        }else if(name == "linear_search"){
+            enc=new LinearSearchEncoder<T>(tolerance);
+        }else if(name == "binary_search"){
+            enc=new BinarySearchEncoder<T>(tolerance);
         }else if(name == "dummy"){
             enc=new DummyEncoder<T>;
+        }else if(name == "nbit_filter"){
+            const unsigned int n_bit = tolerance >0? tolerance:-tolerance;
+            enc=new NbitFilter<T>(n_bit);
         }else{
             std::cerr<<"invalid encoder name specified."<<std::endl;
             std::cerr<<"fall back to normal encoder"<<std::endl;

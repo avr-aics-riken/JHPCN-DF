@@ -14,7 +14,6 @@
 #include <string>
 #include "FileInfoManager.h"
 
-//bool create_new_entry(const std::string& filename_upper, const std::string& filename_lower="", int key=-1, const char * mode="w+b")
 class FileManagerTest : public ::testing::Test
 {
     protected:
