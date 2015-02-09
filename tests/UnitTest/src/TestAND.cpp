@@ -118,41 +118,41 @@ class DoubleAnd3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<do
         int block_size;
 };
 
-TEST_P(FloatAnd3OperandTest, WithZero3Operand)
+TEST_P(FloatAnd3OperandTest, Zero)
 {
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], 0.0F);
+        EXPECT_EQ(0.0F, result[i]);
     }
 }
-TEST_P(DoubleAnd3OperandTest, WithZero3Operand)
+TEST_P(DoubleAnd3OperandTest, Zero)
 {
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], 0.0L);
+        EXPECT_EQ(0.0L, result[i]);
     }
 }
 
-TEST_P(FloatAnd3OperandTest, SameData3Operand)
+TEST_P(FloatAnd3OperandTest, SameData)
 {
     func(src1, src1, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], src1[i]);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
-TEST_P(DoubleAnd3OperandTest, SameData3Operand)
+TEST_P(DoubleAnd3OperandTest, SameData)
 {
     func(src1, src1, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], src1[i]);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
 
-TEST_P(FloatAnd3OperandTest, WithMinusZero3Operand)
+TEST_P(FloatAnd3OperandTest, MinusZero)
 {
     for(int i=0; i<block_size;i++)
     {
@@ -161,10 +161,10 @@ TEST_P(FloatAnd3OperandTest, WithMinusZero3Operand)
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], -0.0F);
+        EXPECT_EQ(-0.0F, result[i]);
     }
 }
-TEST_P(DoubleAnd3OperandTest, WithMinusZero3Operand)
+TEST_P(DoubleAnd3OperandTest, MinusZero)
 {
     for(int i=0; i<block_size;i++)
     {
@@ -173,7 +173,7 @@ TEST_P(DoubleAnd3OperandTest, WithMinusZero3Operand)
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], -0.0L);
+        EXPECT_EQ(-0.0L, result[i]);
     }
 }
 INSTANTIATE_TEST_CASE_P(FloatAnd3OperandTest,   FloatAnd3OperandTest, ::testing::Combine(

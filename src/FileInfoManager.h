@@ -36,6 +36,7 @@ namespace JHPCNDF
                 this->fp_lower=obj.fp_lower;
                 this->filename_upper=obj.filename_upper;
                 this->filename_lower=obj.filename_lower;
+                return *this;
             }
             FileInfo(const std::string& arg_filename_upper, const std::string& arg_filename_lower, const char* mode)
                 :filename_upper(arg_filename_upper),filename_lower(arg_filename_lower), fp_upper(NULL), fp_lower(NULL)
@@ -174,6 +175,7 @@ namespace JHPCNDF
             }
             delete tmp;
             table.erase(key);
+            return true;
         }
         
         //@brief 指定されたkeyに対応する上位ビット側のファイルポインタを返す

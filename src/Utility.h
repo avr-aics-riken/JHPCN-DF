@@ -14,7 +14,7 @@
 #include <bitset>
 #include <iomanip>
 #include <iostream>
-#include <cstdint>
+#include <stdint.h>
 #include <float.h>
 
 namespace

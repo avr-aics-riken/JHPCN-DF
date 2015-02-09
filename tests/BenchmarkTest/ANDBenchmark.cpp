@@ -20,9 +20,11 @@ class ANDBenchmark
             std::cerr<<"usage: "<<argv[0]<<" size_of_data_in_MiB"<<std::endl;
             exit(1);
         }
-        num_data=std::stoull(argv[1])*1024*1024/sizeof(T);
+        num_data=std::atol(argv[1])*1024*1024/sizeof(T);
 
-        random_data = initialize_data<T>(num_data);
+        random_data= new T [num_data];
+        RandomNumber<REAL_TYPE> generator;
+        generator(num_data, random_data);
         result = new T [num_data];
         data1  = new T [num_data];
         data2  = new T [num_data];
@@ -109,17 +111,17 @@ class ANDBenchmark
 int main(int argc, char *argv[])
 {
 
-    auto bm=ANDBenchmark<REAL_TYPE>(argc, argv);
+    ANDBenchmark<REAL_TYPE> bm=ANDBenchmark<REAL_TYPE>(argc, argv);
     std::cout.width(10);
     std::cout.precision(8);
     
     std::cout << "Elapsed time for AND<1>:   "<< bm.benchmark2<real_and<1>, 1 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for AND<2>:   "<< bm.benchmark2<real_and<2>, 2 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for AND<4>:   "<< bm.benchmark2<real_and<4>, 4 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for AND<8>:   "<< bm.benchmark2<real_and<8>, 8 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for AND<16>:  "<< bm.benchmark2<real_and<16>,16>() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for AND<2>:   "<< bm.benchmark2<real_and<2>, 2 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for AND<4>:   "<< bm.benchmark2<real_and<4>, 4 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for AND<8>:   "<< bm.benchmark2<real_and<8>, 8 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for AND<16>:  "<< bm.benchmark2<real_and<16>,16>() <<" sec"<<std::endl;
 #if REAL_TYPE == float
-//    std::cout << "Elapsed time for primitive AND: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
+    std::cout << "Elapsed time for primitive AND: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
 #endif
 
     return 0;

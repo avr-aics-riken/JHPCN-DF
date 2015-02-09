@@ -16,37 +16,37 @@
 class FloatXorTest : public ::testing::TestWithParam<float> {};
 class DoubleXorTest : public ::testing::TestWithParam<double > {};
 
-TEST_P(FloatXorTest, WithZero)
+TEST_P(FloatXorTest, Zero)
 {
     float value=GetParam();
-    EXPECT_EQ(real_xor(0, value), value);
+    EXPECT_EQ(value, real_xor(0, value));
 }
-TEST_P(DoubleXorTest, WithZero)
+TEST_P(DoubleXorTest, Zero)
 {
     double value=GetParam();
-    EXPECT_EQ(real_xor(0, value), value);
+    EXPECT_EQ(value, real_xor(0, value));
 }
 
 TEST_P(FloatXorTest, SameData)
 {
     float value=GetParam();
-    EXPECT_EQ(real_xor(value, value), 0);
+    EXPECT_EQ(0, real_xor(value, value));
 }
 TEST_P(DoubleXorTest, SameData)
 {
     double value=GetParam();
-    EXPECT_EQ(real_xor(value, value), 0);
+    EXPECT_EQ(0, real_xor(value, value));
 }
 
-TEST_P(FloatXorTest, WithMinusZero)
+TEST_P(FloatXorTest, MinusZero)
 {
     float value=GetParam();
-    EXPECT_EQ(real_xor(value, -0.0F), -value);
+    EXPECT_EQ(-value, real_xor(value, -0.0F));
 }
-TEST_P(DoubleXorTest, WithMinusZero)
+TEST_P(DoubleXorTest, MinusZero)
 {
     double value=GetParam();
-    EXPECT_EQ(real_xor(value, -0.0L), -value);
+    EXPECT_EQ(-value, real_xor(value, -0.0L));
 }
 
 class FloatXor3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<float, int> >
@@ -155,41 +155,41 @@ class DoubleXor3OperandTest : public ::testing::TestWithParam<std::tr1::tuple<do
         int block_size;
 };
 
-TEST_P(FloatXor3OperandTest, WithZero3Operand)
+TEST_P(FloatXor3OperandTest, Zero)
 {
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], src1[i]);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
-TEST_P(DoubleXor3OperandTest, WithZero3Operand)
+TEST_P(DoubleXor3OperandTest, Zero)
 {
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], src1[i]);
+        EXPECT_EQ(src1[i], result[i]);
     }
 }
 
-TEST_P(FloatXor3OperandTest, SameData3Operand)
+TEST_P(FloatXor3OperandTest, SameData)
 {
     func(src1, src1, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], 0.0F);
+        EXPECT_EQ(0.0F, result[i]);
     }
 }
-TEST_P(DoubleXor3OperandTest, SameData3Operand)
+TEST_P(DoubleXor3OperandTest, SameData)
 {
     func(src1, src1, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], 0.0L);
+        EXPECT_EQ(0.0L, result[i]);
     }
 }
 
-TEST_P(FloatXor3OperandTest, WithMinusZero3Operand)
+TEST_P(FloatXor3OperandTest, MinusZero)
 {
     for(int i=0; i<block_size;i++)
     {
@@ -198,10 +198,10 @@ TEST_P(FloatXor3OperandTest, WithMinusZero3Operand)
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], -src1[i]);
+        EXPECT_EQ( -src1[i], result[i]);
     }
 }
-TEST_P(DoubleXor3OperandTest, WithMinusZero3Operand)
+TEST_P(DoubleXor3OperandTest, MinusZero)
 {
     for(int i=0; i<block_size;i++)
     {
@@ -210,7 +210,7 @@ TEST_P(DoubleXor3OperandTest, WithMinusZero3Operand)
     func(src1, src2, result);
     for(int i=0; i<block_size;i++)
     {
-        EXPECT_EQ(result[i], -src1[i]);
+        EXPECT_EQ(-src1[i], result[i]);
     }
 }
 INSTANTIATE_TEST_CASE_P(FloatXor3OperandTest,   FloatXor3OperandTest, ::testing::Combine(

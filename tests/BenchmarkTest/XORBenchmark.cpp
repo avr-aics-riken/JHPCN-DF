@@ -31,9 +31,11 @@ class XORBenchmark
             std::cerr<<"usage: "<<argv[0]<<" size_of_data_in_MiB"<<std::endl;
             exit(1);
         }
-        num_data=std::stoull(argv[1])*1024*1024/sizeof(T);
+        num_data=std::atol(argv[1])*1024*1024/sizeof(T);
 
-        random_data = initialize_data<T>(num_data);
+        random_data= new T [num_data];
+        RandomNumber<REAL_TYPE> generator;
+        generator(num_data, random_data);
         result = new T [num_data];
         data1  = new T [num_data];
         data2  = new T [num_data];
@@ -205,18 +207,18 @@ class XORBenchmark
 int main(int argc, char *argv[])
 {
 
-    auto bm=XORBenchmark<REAL_TYPE>(argc, argv);
+    XORBenchmark<REAL_TYPE> bm=XORBenchmark<REAL_TYPE>(argc, argv);
     
     std::cout << "Elapsed time for XOR<1>:   "<< bm.benchmark2<real_xor<1>, 1 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for XOR<2>:   "<< bm.benchmark2<real_xor<2>, 2 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for XOR<4>:   "<< bm.benchmark2<real_xor<4>, 4 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for XOR<8>:   "<< bm.benchmark2<real_xor<8>, 8 >() <<" sec"<<std::endl;
-//    std::cout << "Elapsed time for XOR<16>:  "<< bm.benchmark2<real_xor<16>,16>() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for XOR<2>:   "<< bm.benchmark2<real_xor<2>, 2 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for XOR<4>:   "<< bm.benchmark2<real_xor<4>, 4 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for XOR<8>:   "<< bm.benchmark2<real_xor<8>, 8 >() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for XOR<16>:  "<< bm.benchmark2<real_xor<16>,16>() <<" sec"<<std::endl;
 #if REAL_TYPE == float
-//    std::cout << "Elapsed time for primitive XOR: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
+    std::cout << "Elapsed time for primitive XOR: "<< bm.benchmark0() <<" sec"<<std::endl; //float only !!
 //    std::cout << "Elapsed time for XOR with inline Assembler: "<< bm.benchmark3_float_AVX() <<" sec"<<std::endl; //float only !!
 #endif
-//    std::cout << "Elapsed time for normal XOR: "<< bm.benchmark1() <<" sec"<<std::endl;
+    std::cout << "Elapsed time for normal XOR: "<< bm.benchmark1() <<" sec"<<std::endl;
 
     return 0;
 }
