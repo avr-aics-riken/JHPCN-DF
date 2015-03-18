@@ -1,10 +1,10 @@
 ##############################################################################
-#
-# LPTlib - Lagrangian Particle Tracking library
+# JHPCN-DF : Data compression library based on
+#            Jointed Hierarchical Precision Compression Number Data Format
 # 
-# Copyright (c) 2012-2014 Advanced Institute for Computational Science, RIKEN.
-# All right reserved.
-#
+# Copyright (c) 2014-2015 Advanced Institute for Computational Science, RIKEN.
+# All rights reserved.
+# 
 ##############################################################################
 
 AUTOMAKE_OPTIONS = subdir-objects
