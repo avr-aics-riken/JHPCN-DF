@@ -14,6 +14,7 @@
 #include "stdio.h"
 #include <zlib.h>
 #include <limits.h>
+#include <vector>
 
 
 namespace JHPCNDF
