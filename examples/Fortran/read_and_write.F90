@@ -27,7 +27,7 @@ call random_number(random_data)
 call JHPCNDF_OPEN(UNIT=KEY, UFILE='upper_bits.gz', LFILE='lower_bits.gz', ACTION='WRITE')
 
 ! encode and write
-call JHPCNDF_WRITE(UNIT=KEY, RECL=num_data, data=random_data, TOL=tolerance, ENC="normal", comp="gzip")
+call JHPCNDF_WRITE(UNIT=KEY, RECL=num_data, data=random_data, TOL=tolerance, IS_REL=.true., ENC="normal", comp="gzip")
 
 ! close file
 call JHPCNDF_CLOSE(KEY)
@@ -49,6 +49,7 @@ call JHPCNDF_READ(UNIT=KEY2, RECL=num_data, data=work)
 call JHPCNDF_CLOSE(KEY2)
 
 ! compare original and read data
+error_count=0
 do i=0, num_data
 if (random_data(i) .ne. work(i)) then 
     if (error_count .lt. 10) then

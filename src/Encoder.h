@@ -70,7 +70,7 @@ namespace JHPCNDF
     class NormalEncoder:public Encoder<T>
     {
         public:
-            NormalEncoder(const float& arg_tolerance): tolerance(arg_tolerance) {}
+            NormalEncoder(const float& arg_tolerance, const bool& arg_is_relative): tolerance(arg_tolerance), is_relative(arg_is_relative) {}
             void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const
             {
                 make_upper_bits(length, src, dst);
@@ -82,7 +82,12 @@ namespace JHPCNDF
 #pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
-                    unsigned int split_position=get_initial_split_position(src[i]);
+                    double tolerance=this->tolerance;
+                    if(is_relative)
+                    {
+                        tolerance*=src[i];
+                    }
+                    unsigned int split_position=get_initial_split_position(src[i], tolerance);
 #ifdef DEBUG
                     if(i==0 || i==length/2)
                     {
@@ -104,7 +109,7 @@ namespace JHPCNDF
 #endif
                 }
             }
-            unsigned int get_initial_split_position(const T& value) const
+            unsigned int get_initial_split_position(const T& value, const double& tolerance) const
             {
                 double logallo = std::log(tolerance)/std::log(2.0);
                 int tmp;
@@ -127,6 +132,7 @@ namespace JHPCNDF
                 --(*split_position);
             }
             const float tolerance;
+            const bool  is_relative;
     };
 
     //@ 線形探査で切り分け位置を探すエンコーダ
@@ -134,7 +140,7 @@ namespace JHPCNDF
     class LinearSearchEncoder:public Encoder<T>
     {
         public:
-            LinearSearchEncoder(const float& arg_tolerance): tolerance(arg_tolerance) {}
+            LinearSearchEncoder(const float& arg_tolerance, const bool& arg_is_relative): tolerance(arg_tolerance), is_relative(arg_is_relative) {}
             void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const
             {
                 make_upper_bits(length, src, dst);
@@ -146,6 +152,11 @@ namespace JHPCNDF
 #pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
+                    double tolerance=this->tolerance;
+                    if(is_relative)
+                    {
+                        tolerance*=src[i];
+                    }
                     unsigned int split_position=get_initial_split_position();
 #ifdef DEBUG
                     if(i==0 || i==length/2)
@@ -182,6 +193,7 @@ namespace JHPCNDF
                 --(*split_position);
             }
             const float tolerance;
+            const bool  is_relative;
     };
 
     //@ 上位bitと下位bitの切り分けを8bit単位にまるめたエンコーダ
@@ -189,7 +201,7 @@ namespace JHPCNDF
     class ByteAligndEncoder:public Encoder<T>
     {
         public:
-            ByteAligndEncoder(const float& arg_tolerance): tolerance(arg_tolerance)
+            ByteAligndEncoder(const float& arg_tolerance, const bool& arg_is_relative): tolerance(arg_tolerance), is_relative(arg_is_relative)
             {
                 if (sizeof(T) == 4)
                 {
@@ -223,6 +235,11 @@ namespace JHPCNDF
 #pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
+                    double tolerance=this->tolerance;
+                    if(is_relative)
+                    {
+                        tolerance*=src[i];
+                    }
                     int j=0;
                     unsigned int split_position=split_positions[j];
 #ifdef DEBUG
@@ -248,6 +265,7 @@ namespace JHPCNDF
             }
             const float tolerance;
             int*  split_positions;
+            const bool  is_relative;
     };
 
     //@brief 二分探査で分割位置を探索するエンコーダ
@@ -255,7 +273,7 @@ namespace JHPCNDF
     class BinarySearchEncoder:public Encoder<T>
     {
         public:
-            BinarySearchEncoder(const float& arg_tolerance): tolerance(arg_tolerance) {}
+            BinarySearchEncoder(const float& arg_tolerance, const bool& arg_is_relative): tolerance(arg_tolerance), is_relative(arg_is_relative) {}
             void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const
             {
                 make_upper_bits(length, src, dst);
@@ -267,6 +285,12 @@ namespace JHPCNDF
 #pragma omp parallel for
                 for (size_t i=0; i<length; i++)
                 {
+                    double tolerance=this->tolerance;
+                    if(is_relative)
+                    {
+                        tolerance*=src[i];
+                    }
+
                     unsigned int left = get_fraction_length();
                     unsigned int split_position=left/2; //center
                     unsigned int right= 0;
@@ -314,6 +338,7 @@ namespace JHPCNDF
                 }
             }
             const float tolerance;
+            const bool  is_relative;
     };
 
     //@brief 特定の分割位置以下のビットを0埋めするエンコーダ
@@ -340,18 +365,18 @@ namespace JHPCNDF
     };
 
     template <typename T>
-    Encoder<T>* EncoderFactory(const std::string& name, const float& tolerance)
+    Encoder<T>* EncoderFactory(const std::string& name, const float& tolerance, const bool& is_relative)
     {
         Encoder<T>* enc=NULL;
         if(name == "normal")
         {
-            enc=new NormalEncoder<T>(tolerance);
+            enc=new NormalEncoder<T>(tolerance, is_relative);
         }else if(name == "byte_aligned"){
-            enc=new ByteAligndEncoder<T>(tolerance);
+            enc=new ByteAligndEncoder<T>(tolerance, is_relative);
         }else if(name == "linear_search"){
-            enc=new LinearSearchEncoder<T>(tolerance);
+            enc=new LinearSearchEncoder<T>(tolerance, is_relative);
         }else if(name == "binary_search"){
-            enc=new BinarySearchEncoder<T>(tolerance);
+            enc=new BinarySearchEncoder<T>(tolerance, is_relative);
         }else if(name == "dummy"){
             enc=new DummyEncoder<T>;
         }else if(name == "nbit_filter"){
@@ -360,7 +385,7 @@ namespace JHPCNDF
         }else{
             std::cerr<<"invalid encoder name specified."<<std::endl;
             std::cerr<<"fall back to normal encoder"<<std::endl;
-            enc=new NormalEncoder<T>(tolerance);
+            enc=new NormalEncoder<T>(tolerance, is_relative);
         }
         return enc;
     }

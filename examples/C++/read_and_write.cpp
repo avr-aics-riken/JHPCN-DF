@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include "jhpcndf.h"
 
-#define NUM_DATA 100000
+#define NUM_DATA 10000
 #ifdef REAL_8_BYTE
 #define REAL_TYPE double
 #else

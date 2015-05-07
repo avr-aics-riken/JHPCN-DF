@@ -20,31 +20,38 @@
 # -Dbuild_unit_tests=yes
 #    UnitTestをビルドする
 #
-# -Dbuild_examples=yes
-#    サンプルコードをビルドする
-#
 # -Dbuild_performance_test=yes
 #    PerformanceTestおよびDumpToolをビルドする
 #
 # -DREAL_8_BYTE=yes
 #    PerformanceTest、DumpTool、サンプルコードをdouble用にビルドする(デフォルトはfloat)
 #
+# -Dwith_sse=yes
+#    SSE命令を生成するオプションを指定しない。(デフォルトyes)
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.10)
 project(JHPCNDFlib CXX Fortran)
 
 set(CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/CompileOptionSelector.cmake)
+
+#ビルドオプション設定
+option(build_unit_tests       "build test program" OFF)
+option(build_performance_test "build performance test program" OFF)
+option(with_sse               "use sse instructions" ON)
+
+#コンパイルオプションの指定
+CPP11()
+FreeForm()
+AddOptimizeOption()
 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     ADD_DEFINITIONS(-DDEBUG)
 else()
     ADD_DEFINITIONS(-DTIME_MEASURE)
 endif()
-
-include(${PROJECT_SOURCE_DIR}/cmake/CompileOptionSelector.cmake)
-CompileOptionSelector()
-CPP11()
-FreeForm()
-
+if(with_sse)
+  AddSSE()
+endif()
 
 ##############################################
 # 依存するパッケージを探す
@@ -58,13 +65,8 @@ else()
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
-option(build_examples         "build examples" OFF)
-option(build_unit_tests       "build test program" OFF)
-option(build_performance_test "build performance test program" OFF)
-
 #ビルド設定の表示
 message( STATUS "Destination PATH: "               ${CMAKE_INSTALL_PREFIX})
-message( STATUS "build examples: "                 ${build_examples})
 message( STATUS "build unit test program: "        ${build_unit_tests})
 message( STATUS "build performance test program: " ${build_performance_test})
 message( STATUS "CMAKE_CXX_COMPILER: "             ${CMAKE_CXX_COMPILER})
@@ -99,16 +101,9 @@ add_library(jhpcndf STATIC ${LIB_SRC})
 install (TARGETS jhpcndf DESTINATION lib)
 install (FILES ${PROJECT_SOURCE_DIR}/include/jhpcndf.h  DESTINATION include)
 install (FILES ${PROJECT_BINARY_DIR}/jhpcndf.mod        DESTINATION include)
-install (FILES ${PROJECT_SOURCE_DIR}/cmake/FindJHPCNDFlib.cmake   DESTINATION share)
-
-#####################################################
-# サンプルのビルド
-#   cmakeの実行時に -Dbuild_examples=yes が
-#   指定された時のみbuildする
-#####################################################
-if(build_examples)
-    add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
-endif()
+install (FILES ${PROJECT_SOURCE_DIR}/cmake/FindJHPCNDF.cmake   DESTINATION share)
+install (FILES ${PROJECT_SOURCE_DIR}/cmake/LibFindMacros.cmake DESTINATION share)
+install (FILES ${PROJECT_SOURCE_DIR}/cmake/Toolchain_K.cmake   DESTINATION share)
 
 #####################################################
 # 単体テストプログラムのビルド&インストール

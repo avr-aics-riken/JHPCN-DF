@@ -23,6 +23,7 @@ endif()
 include(${PROJECT_SOURCE_DIR}/../cmake/CompileOptionSelector.cmake)
 FreeForm()
 C99()
+CPP11()
 
 ###################################################################
 # find libraries
@@ -33,9 +34,15 @@ if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
 else()
     find_package(OpenMP REQUIRED)
 endif()
+
+#cmake 2.8 can not find OpenMP_Fortran_FLAGS (both Intel and GNU compiler)
+set(OpenMP_Fortran_FLAGS ${OpenMP_C_FLAGS})
+
 set(CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${OpenMP_CXX_FLAGS}")
 set(CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${OpenMP_C_FLAGS}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+
+
 
 # zlib
 if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
@@ -45,13 +52,9 @@ else()
 endif()
 
 # JHPCNDF
-set(JHPCNDF_INCLUDE_DIRS
-    ${PROJECT_SOURCE_DIR}/../include
-    ${PROJECT_SOURCE_DIR}/../src
-    ${CMAKE_BINARY_DIR}
-    )
-set(JHPCNDF_LIBRARIES jhpcndf)
-link_directories( ${CMAKE_BINARY_DIR})
+find_package (JHPCNDF REQUIRED)
+message(STATUS ${JHPCNDF_LIBRARIES})
+
 
 ###################################################################
 # show build settings
@@ -83,24 +86,19 @@ install (TARGETS cpp_file_io DESTINATION bin)
 add_executable(cpp_in_memory ${PROJECT_SOURCE_DIR}/C++/encode_and_decode.cpp)
 target_link_libraries(cpp_in_memory ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES})
 install (TARGETS cpp_in_memory DESTINATION bin)
-#add_executable(name  )
-#target_link_libraries(name  ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES})
-#install (TARGETS name  DESTINATION bin)
 
 add_executable(c_file_io ${PROJECT_SOURCE_DIR}/C/read_and_write.c )
-target_link_libraries(c_file_io ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(c_file_io ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES})
 install (TARGETS c_file_io DESTINATION bin)
 
 add_executable(c_in_memory ${PROJECT_SOURCE_DIR}/C/encode_and_decode.c )
-target_link_libraries(c_in_memory ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(c_in_memory ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES})
 install (TARGETS c_in_memory DESTINATION bin)
 
 add_executable(f_file_io ${PROJECT_SOURCE_DIR}/Fortran/read_and_write.F90 )
-target_link_libraries(f_file_io  ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(f_file_io  ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES})
 install (TARGETS f_file_io  DESTINATION bin)
 
 add_executable(f_in_memory ${PROJECT_SOURCE_DIR}/Fortran/read_and_write.F90 )
-target_link_libraries(f_in_memory  ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(f_in_memory  ${JHPCNDF_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES})
 install (TARGETS f_in_memory  DESTINATION bin)
-
-

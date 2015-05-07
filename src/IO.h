@@ -45,7 +45,7 @@ namespace JHPCNDF
     {
         public:
             // [memo] windowBitsは15(=MAX_WBITS)を指定した時はzlib形式、16+MAX_WBITSを指定した時はgzip形式での圧縮となる
-            zlibIO() :buffer_size(32768), level(Z_DEFAULT_COMPRESSION), strategy(Z_DEFAULT_STRATEGY), windowBits(16+MAX_WBITS), block_size(UINT_MAX) {}
+            zlibIO(const size_t& arg_buffer_size) :buffer_size(arg_buffer_size), level(Z_DEFAULT_COMPRESSION), strategy(Z_DEFAULT_STRATEGY), windowBits(16+MAX_WBITS), block_size(UINT_MAX) {}
             
             //@brief zlibで圧縮されたデータを読み込んで伸長したうえでptrへ書き込む
             //@param ptr     読み込んだデータを格納する領域へのポインタ
@@ -254,12 +254,13 @@ namespace JHPCNDF
     //@param name インスタンス化するクラスを指定する
     //    gzip  gzip形式での圧縮伸長を行うIOクラスを生成
     //    stdio stdioによる通常のIOを行うクラスを生成
-    IO* IOFactory(const std::string& name)
+    //@param buff_size  zlibIO内部で使用するバッファサイズ(Byte単位)
+    IO* IOFactory(const std::string& name, const size_t& buff_size)
     {
         IO* io=NULL;
         if(name == "gzip")
         {
-            io=new zlibIO();
+            io=new zlibIO(buff_size);
         }else if(name == "stdio" || name == "none"){
             io=new stdIO;
         }else{
