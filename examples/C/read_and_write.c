@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "jhpcndf.h"
 
-#define NUM_DATA 100000
+#define NUM_DATA 10000
 #ifdef REAL_8_BYTE
 #define REAL_TYPE double
 #else
@@ -27,13 +27,13 @@ int main(int argc, char *argv[])
     }
 
     // Open file
-    int key=JHPCNDF_fopen("upper_bits.gz", "lower_bits.gz", "w+b");
+    int key=JHPCNDF_fopen("upper_bits.gz", "lower_bits.gz", "w+b", 32768);
 
     // Encode and write
 #ifdef REAL_8_BYTE
-    JHPCNDF_fwrite_double(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, "normal", "gzip");
+    JHPCNDF_fwrite_double(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, 1, "normal", "gzip");
 #else
-    JHPCNDF_fwrite_float(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, "normal", "gzip");
+    JHPCNDF_fwrite_float(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, 1, "normal", "gzip");
 #endif
 
     // Close file
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     REAL_TYPE* work = malloc(num_data*sizeof(REAL_TYPE));
 
     // OpenFile
-    int key2=JHPCNDF_fopen("upper_bits.gz", "lower_bits.gz", "rb");
+    int key2=JHPCNDF_fopen("upper_bits.gz", "lower_bits.gz", "rb", 32768);
 
     // Read and decode
 #ifdef REAL_8_BYTE

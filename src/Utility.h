@@ -14,14 +14,17 @@
 #include <bitset>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 #include <stdint.h>
 #include <float.h>
 
 namespace
 {
     //@brief 2つの値の差が許容誤差以下かどうかを調べる
+    //@ret true  2つの値の差が許容誤差以下となっている
+    //@ret false 2つの値の差が許容誤差より大きい
     template <typename T, unsigned int BLOCK_SIZE>
-    bool is_converged(const T* const src1, const T* const src2, const float& tolerance)
+    bool is_converged(const T* const src1, const T* const src2, const double& tolerance)
     {
         for (unsigned int i=0; i< BLOCK_SIZE; i++)
         {
@@ -43,6 +46,17 @@ namespace
         double real;
         uint64_t integer;
     };
+
+    template <size_t SIZE>
+    void convert_endian(char* data, const size_t& num_elements)
+    {
+        for(int i = 0; i < num_elements; i++)
+        {
+            char* first = data+SIZE*i;
+            char* last  = data+SIZE*(i+1);
+            std::reverse(first, last);
+        }
+    }
 
     //@brief floatを2進数に変換してstdoutへ出力
     void output_binary(std::ostream& ss, const float& data)

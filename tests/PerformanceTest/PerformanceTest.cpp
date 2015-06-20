@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
             oss<<tolerance;
             filenames.push_back(filename+"_"+*it+"_"+oss.str()+".gz");
             int key=JHPCNDF::fopen(filename+"_"+*it+"_"+oss.str()+".gz", filename+"_"+*it+"_"+oss.str()+"lower"+".gz", "w+b");
-            JHPCNDF::fwrite(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, *it, "gzip", true);
+            JHPCNDF::fwrite(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, true, *it, "gzip", true);
             JHPCNDF::fclose(key);
             std::cerr<< std::endl;
         }

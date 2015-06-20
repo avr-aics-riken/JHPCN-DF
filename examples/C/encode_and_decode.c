@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
 
     // Encode
 #ifdef REAL_8_BYTE
-    JHPCNDF_encode_double(num_data, random_data,  encoded, encoded_lower, tolerance, "normal");
+    JHPCNDF_encode_double(num_data, random_data,  encoded, encoded_lower, tolerance, 1, "normal");
 #else
-    JHPCNDF_encode_float(num_data, random_data,  encoded, encoded_lower, tolerance, "normal");
+    JHPCNDF_encode_float(num_data, random_data,  encoded, encoded_lower, tolerance, 1, "normal");
 #endif
 
 

@@ -66,6 +66,7 @@ namespace JHPCNDF
         FILE* fp_lower;
         std::string filename_upper;
         std::string filename_lower;
+        size_t buffer_size;
     };
     class FileInfoManager
     {
@@ -200,6 +201,7 @@ namespace JHPCNDF
             return tmp->fp_lower;
         }
 
+        //@brief 登録済の全てのエントリを削除する
         void destroy_all(void)
         {
             for(std::map<int, FileInfo*>::iterator it =table.begin(); it!= table.end(); ++it)
@@ -207,6 +209,25 @@ namespace JHPCNDF
                 delete it->second;
                 table.erase(it);
             }
+        }
+
+        //@brief 指定されたkeyに対応するファイルへのIOバッファサイズを設定する
+        void set_buff_size(const int& key, const size_t& size)
+        {
+            FileInfo*tmp =get_entry(key);
+            if(tmp!=NULL) tmp->buffer_size=size;
+        }
+
+        //@brief 指定されたkeyに対応するファイルへのIOバッファサイズを取得する
+        const size_t& get_buff_size(const int& key)
+        {
+            FileInfo*tmp =get_entry(key);
+            if(tmp==NULL) 
+            {
+                std::cerr<<"Invalie key("<<key<<")"<<std::endl;
+                return 1;
+            }
+            return tmp->buffer_size;
         }
 
         private:

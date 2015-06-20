@@ -48,7 +48,7 @@ class ZlibIOTest : public ::testing::TestWithParam<size_t>
 
 TEST_P(ZlibIOTest, WriteAndRead)
 {
-    JHPCNDF::IO* io = JHPCNDF::IOFactory("gzip");
+    JHPCNDF::IO* io = JHPCNDF::IOFactory("gzip", 32768);
 
     size_t write_size = io->fwrite(random_data, size, nmemb, fp);
     rewind(fp);

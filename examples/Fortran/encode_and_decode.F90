@@ -38,6 +38,7 @@ call jhpcndf_decode(num_data, encoded, encoded_lower, work)
 
 
 ! compare original and read data
+error_count=0
 do i=0, num_data
 if (random_data(i) .ne. work(i)) then 
     if (error_count .lt. 10) then
