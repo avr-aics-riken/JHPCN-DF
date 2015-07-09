@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         for(std::vector<std::string>::iterator it=filenames.begin(); it!=filenames.end(); ++it)
         {
             std::cerr<<std::setw(max) << *it <<" : ";
-            int key=JHPCNDF::fopen(*it, "", "rb", 32768);
+            int key=JHPCNDF::fopen(*it);
             JHPCNDF::fread(work, sizeof(REAL_TYPE), num_data, key);
             JHPCNDF::fclose(key);
             output_binary(std::cerr, work[*it_index]);

@@ -1,8 +1,8 @@
 module jhpcndf
 interface
-    subroutine jhpcndf_open(unit, ufile, lfile, action, buff_size)
+    subroutine jhpcndf_open(unit, ufile, lfile, action, comp, buff_size)
     integer(4)       :: unit
-    character(len=*) :: ufile, lfile, action
+    character(len=*) :: ufile, lfile, action, comp
     integer(8)       :: buff_size
     end subroutine jhpcndf_open
 
@@ -12,48 +12,48 @@ interface
 end interface
 
 interface  jhpcndf_write
-    subroutine jhpcndf_write_real4(unit, recl, data, tol, is_rel, enc, comp)
+    subroutine jhpcndf_write_real4(unit, recl, data, tol, is_rel, enc)
         integer(4)        :: unit
         integer(8)        :: recl
         real(4)           :: tol
         logical           :: is_rel
-        character(len=*)  :: enc, comp
+        character(len=*)  :: enc
         real(4)           :: data(:)
     end subroutine jhpcndf_write_real4
 
-    subroutine jhpcndf_write_real8(unit, recl, data, tol, is_rel, enc, comp)
+    subroutine jhpcndf_write_real8(unit, recl, data, tol, is_rel, enc)
         integer(4)        :: unit
         integer(8)        :: recl
         real(4)           :: tol
         logical           :: is_rel
-        character(len=*)  :: enc, comp
+        character(len=*)  :: enc
         real(8)           :: data(:)
     end subroutine jhpcndf_write_real8
 
-    subroutine jhpcndf_write_integer4(unit, recl, data, tol, is_rel, enc, comp)
+    subroutine jhpcndf_write_integer4(unit, recl, data, tol, is_rel, enc)
         integer(4)        :: unit
         integer(8)        :: recl
         real(4)           :: tol
         logical           :: is_rel
-        character(len=*)  :: enc, comp
+        character(len=*)  :: enc
         integer(4)        :: data(:)
     end subroutine jhpcndf_write_integer4
 
-    subroutine jhpcndf_write_integer8(unit, recl, data, tol, is_rel, enc, comp)
+    subroutine jhpcndf_write_integer8(unit, recl, data, tol, is_rel, enc)
         integer(4)        :: unit
         integer(8)        :: recl
         real(4)           :: tol
         logical           :: is_rel
-        character(len=*)  :: enc, comp
+        character(len=*)  :: enc
         integer(8)        :: data(:)
     end subroutine jhpcndf_write_integer8
 
-    subroutine jhpcndf_write_character(unit, recl, data, tol, is_rel, enc, comp)
+    subroutine jhpcndf_write_character(unit, recl, data, tol, is_rel, enc)
         integer(4)        :: unit
         integer(8)        :: recl
         real(4)           :: tol
         logical           :: is_rel
-        character(len=*)  :: enc, comp
+        character(len=*)  :: enc
         character(len=*)  :: data
     end subroutine jhpcndf_write_character
 end interface

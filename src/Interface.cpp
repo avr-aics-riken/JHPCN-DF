@@ -29,7 +29,7 @@ namespace JHPCNDF
   namespace
   {
     template <typename T>
-      size_t fwrite_helper(const T* data, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap)
+      size_t fwrite_helper(const T* data, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap)
       {
 #ifdef TIME_MEASURE
         double t0=0.0;
@@ -88,7 +88,8 @@ namespace JHPCNDF
         {
           convert_endian<sizeof(T)>((char*)work_upper, nmemb);
         }
-        IO* io=IOFactory(comp, FileInfoManager::GetInstance().get_buff_size(key));
+        FileInfoManager& FIM=FileInfoManager::GetInstance();
+        IO* io=IOFactory(FIM.get_compression_method(key), FIM.get_buff_size(key));
         output_size=io->fwrite(work_upper, size, nmemb, fp_upper);
 #ifdef TIME_MEASURE
         if(time_measuring)
@@ -122,27 +123,12 @@ namespace JHPCNDF
     template <typename T>
       size_t fread_helper(T *data, size_t size, const int& key, const bool& byte_swap)
       {
-        //seek位置を保存
+        FileInfoManager& FIM=FileInfoManager::GetInstance();
+        IO* io=IOFactory(FIM.get_compression_method(key), FileInfoManager::GetInstance().get_buff_size(key));
         FILE* fp_upper = FileInfoManager::GetInstance().get_upper_file_pointer(key);
-        FILE* fp_lower = FileInfoManager::GetInstance().get_lower_file_pointer(key);
-        long org_upper_position=ftell(fp_upper);
-        //先頭2byte分を読み込んでヘッダを判定(gzip or not)
-        unsigned char work[2];
-        if(::fread(work, 1, 2, fp_upper)!=2)
-        {
-          std::cerr<<"upper bits file read failed"<<std::endl;
-        }
-        fseek(fp_upper, org_upper_position, 0);
-
-        //読み込んだヘッダを元にIOクラスを作成
-        IO* io;
-        if(work[0]==0x1f && work[1] == 0x8b)
-        {
-          io=IOFactory("gzip", FileInfoManager::GetInstance().get_buff_size(key));
-        }else{
-          io=IOFactory("stdio", FileInfoManager::GetInstance().get_buff_size(key));
-        }
         size_t read_size=io->fread(data, sizeof(T), size, fp_upper);
+
+        FILE* fp_lower= FileInfoManager::GetInstance().get_lower_file_pointer(key);
         if(fp_lower!=NULL)
         {
           T* work;
@@ -184,12 +170,9 @@ namespace JHPCNDF
       }
   }//end of unnamed namespace
 
-  int fopen(const std::string& filename_upper, const std::string& filename_lower, const char * mode, const size_t& buff_size)
+  int fopen(const std::string& filename_upper, const std::string& filename_lower, const char* mode, const std::string& comp, const size_t& buff_size)
   {
-    FileInfoManager& FIM=FileInfoManager::GetInstance();
-    int key = FIM.create_new_entry(filename_upper, filename_lower, -1, mode);
-    FIM.set_buff_size(key, buff_size);
-    return key;
+    return FileInfoManager::GetInstance().create_new_entry(filename_upper, filename_lower, -1, mode, comp, buff_size);
   }
   void fclose(const int& key)
   {
@@ -197,9 +180,10 @@ namespace JHPCNDF
   }
 
   template <typename T>
-    size_t fwrite(const T* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap)
+    size_t fwrite(const T* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap)
     {
-      FILE* fp_upper = FileInfoManager::GetInstance().get_upper_file_pointer(key);
+      FileInfoManager& FIM=FileInfoManager::GetInstance();
+      FILE* fp_upper = FIM.get_upper_file_pointer(key);
       T* work;
       if(byte_swap)
       {
@@ -213,7 +197,7 @@ namespace JHPCNDF
         work=const_cast<T *>(ptr);
       }
 
-      IO* io=IOFactory(comp, FileInfoManager::GetInstance().get_buff_size(key));
+      IO* io=IOFactory(FIM.get_compression_method(key), FIM.get_buff_size(key));
       const size_t output_size=io->fwrite(work, size, nmemb, fp_upper);
 
       FILE* fp_lower= FileInfoManager::GetInstance().get_lower_file_pointer(key);
@@ -225,21 +209,22 @@ namespace JHPCNDF
       return output_size;
     }
   template <>
-    size_t fwrite(const float* ptr, size_t size, size_t nmemb,  const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap)
+    size_t fwrite(const float* ptr, size_t size, size_t nmemb,  const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap)
     {
-      return fwrite_helper(ptr, size, nmemb, key, tolerance, is_relative, enc, comp, time_measuring, byte_swap);
+      return fwrite_helper(ptr, size, nmemb, key, tolerance, is_relative, enc, time_measuring, byte_swap);
     }
   template <>
-    size_t fwrite(const double* ptr, size_t size, size_t nmemb,  const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap)
+    size_t fwrite(const double* ptr, size_t size, size_t nmemb,  const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap)
     {
-      return fwrite_helper(ptr, size, nmemb, key, tolerance, is_relative, enc, comp, time_measuring, byte_swap);
+      return fwrite_helper(ptr, size, nmemb, key, tolerance, is_relative, enc, time_measuring, byte_swap);
     }
 
   template <typename T>
     size_t fread(T* ptr, size_t size, size_t nmemb, const int& key, const bool& byte_swap)
     {
+      FileInfoManager& FIM=FileInfoManager::GetInstance();
       //seek位置を保存
-      FILE* fp_upper = FileInfoManager::GetInstance().get_upper_file_pointer(key);
+      FILE* fp_upper = FIM.get_upper_file_pointer(key);
       long org_upper_position=ftell(fp_upper);
 
       //先頭2byte分を読み込んでヘッダを判定(gzip or not)
@@ -254,9 +239,9 @@ namespace JHPCNDF
       IO* io;
       if(work[0]==0x1f && work[1] == 0x8b)
       {
-        io=IOFactory("gzip", FileInfoManager::GetInstance().get_buff_size(key));
+        io=IOFactory("gzip", FIM.get_buff_size(key));
       }else{
-        io=IOFactory("stdio", FileInfoManager::GetInstance().get_buff_size(key));
+        io=IOFactory("stdio", FIM.get_buff_size(key));
       }
 
       size_t read_size=io->fread(ptr, size, nmemb, fp_upper);
@@ -314,26 +299,26 @@ namespace JHPCNDF
 //
 // implementation of C Interface routines
 //
-int JHPCNDF_fopen(const char* filename_upper, const char* filename_lower, const char * mode, const size_t buff_size)
+int JHPCNDF_fopen(const char* filename_upper, const char* filename_lower, const char* mode, const char* comp, const size_t buff_size)
 {
-  return JHPCNDF::fopen(filename_upper, filename_lower, mode, buff_size);
+  return JHPCNDF::fopen(filename_upper, filename_lower, mode, comp, buff_size);
 }
 void JHPCNDF_fclose(const int key)
 {
   JHPCNDF::fclose(key);
 }
 
-size_t JHPCNDF_fwrite_float(const float* ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc, const char* comp)
+size_t JHPCNDF_fwrite_float(const float* ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc)
 {
-  return JHPCNDF::fwrite(ptr, size, nmemb, key, tolerance, is_relative, enc, comp);
+  return JHPCNDF::fwrite(ptr, size, nmemb, key, tolerance, is_relative, enc);
 }
-size_t JHPCNDF_fwrite_double(const double *ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc, const char* comp)
+size_t JHPCNDF_fwrite_double(const double *ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc)
 {
-  return JHPCNDF::fwrite(ptr, size, nmemb, key, tolerance, is_relative, enc, comp);
+  return JHPCNDF::fwrite(ptr, size, nmemb, key, tolerance, is_relative, enc);
 }
-size_t JHPCNDF_fwrite(const void *ptr, size_t size, size_t nmemb, const int key, const char* enc, const char* comp)
+size_t JHPCNDF_fwrite(const void *ptr, size_t size, size_t nmemb, const int key, const char* enc)
 {
-  return JHPCNDF::fwrite((char*)ptr, 1, size*nmemb, key, 0.1, enc, comp);
+  return JHPCNDF::fwrite((char*)ptr, 1, size*nmemb, key, 0.1, enc);
 }
 size_t JHPCNDF_fread_float(float* ptr, size_t size, size_t nmemb, const int key)
 {
@@ -369,13 +354,13 @@ void JHPCNDF_decode_double(const size_t length, const double* const src_upper, c
 //
 extern "C"
 {
-  //subroutine jhpcndf_open(unit, ufile, lfile, action)
-  void jhpcndf_open__(int* unit, const char* ufile, const char* lfile, const char* action, const size_t buff_size)
+  //subroutine jhpcndf_open(unit, ufile, lfile, action, comp, buff_size)
+  void jhpcndf_open__(int* unit, const char* ufile, const char* lfile, const char* action, const char* comp, const size_t buff_size)
   {
     std::string mode(action);
     std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
     mode=mode=="write"?"w+b":"rb";
-    *unit = JHPCNDF::fopen(ufile, lfile, mode.c_str(), buff_size);
+    *unit = JHPCNDF::fopen(ufile, lfile, mode.c_str(), comp, buff_size);
   }
 
   //subroutine jhpcndf_close(unit)
@@ -384,30 +369,30 @@ extern "C"
     JHPCNDF::fclose(*unit);
   }
 
-  //subroutine jhpcndf_write_real4(unit, recl, data, tol, enc, comp)
-  void jhpcndf_write_real4__(int* unit, size_t* recl, float* data, float* tolerance, bool* is_relative, const char* enc, const char* comp)
+  //subroutine jhpcndf_write_real4(unit, recl, data, tol, enc)
+  void jhpcndf_write_real4__(int* unit, size_t* recl, float* data, float* tolerance, bool* is_relative, const char* enc)
   {
-    JHPCNDF::fwrite(data, sizeof(float), *recl, *unit, *tolerance, *is_relative, enc, comp);
+    JHPCNDF::fwrite(data, sizeof(float), *recl, *unit, *tolerance, *is_relative, enc);
   }
-  //subroutine jhpcndf_write_real8(unit, recl, data, tol, enc, comp)
-  void jhpcndf_write_real8__(int* unit, size_t* recl, float* data, float* tolerance, bool* is_relative, const char* enc, const char* comp)
+  //subroutine jhpcndf_write_real8(unit, recl, data, tol, enc)
+  void jhpcndf_write_real8__(int* unit, size_t* recl, float* data, float* tolerance, bool* is_relative, const char* enc)
   {
-    JHPCNDF::fwrite(data, sizeof(double), *recl, *unit, *tolerance, *is_relative, enc, comp);
+    JHPCNDF::fwrite(data, sizeof(double), *recl, *unit, *tolerance, *is_relative, enc);
   }
-  //subroutine jhpcndf_write_integer4(unit, recl, data, tol, enc, comp)
-  void jhpcndf_write_integer4__(int* unit, size_t* recl, int* data, float* tolerance, const char* enc, const char* comp)
+  //subroutine jhpcndf_write_integer4(unit, recl, data, tol, enc)
+  void jhpcndf_write_integer4__(int* unit, size_t* recl, int* data, float* tolerance, const char* enc)
   {
-    JHPCNDF::fwrite(data, 1, (*recl)*4, *unit, *tolerance, 1, enc, comp);
+    JHPCNDF::fwrite(data, 1, (*recl)*4, *unit, *tolerance, 1, enc);
   }
-  //subroutine jhpcndf_write_integer8(unit, recl, data, tol, enc, comp)
-  void jhpcndf_write_integer8__(int* unit, size_t* recl, long long* data, float* tolerance, const char* enc, const char* comp)
+  //subroutine jhpcndf_write_integer8(unit, recl, data, tol, enc)
+  void jhpcndf_write_integer8__(int* unit, size_t* recl, long long* data, float* tolerance, const char* enc)
   {
-    JHPCNDF::fwrite(data, 1, (*recl)*8, *unit, *tolerance, 1, enc, comp);
+    JHPCNDF::fwrite(data, 1, (*recl)*8, *unit, *tolerance, 1, enc);
   }
-  //subroutine jhpcndf_write_character(unit, recl, data, tol, enc, comp)
-  void jhpcndf_write_character__(int* unit, size_t* recl, char* data, float* tolerance, const char* enc, const char* comp)
+  //subroutine jhpcndf_write_character(unit, recl, data, tol, enc)
+  void jhpcndf_write_character__(int* unit, size_t* recl, char* data, float* tolerance, const char* enc)
   {
-    JHPCNDF::fwrite(data, 1, *recl, *unit, *tolerance, 1, enc, comp);
+    JHPCNDF::fwrite(data, 1, *recl, *unit, *tolerance, 1, enc);
   }
   //subroutine jhpcndf_read_real4(unit, recl, data)
   void jhpcndf_read_real4__(int* unit, size_t* recl, float* data)
@@ -460,25 +445,25 @@ extern "C"
 namespace JHPCNDF
 {
   template 
-    size_t fwrite<bool>(const bool* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<bool>(const bool* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<char>(const char* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<char>(const char* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<unsigned char>(const unsigned char* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<unsigned char>(const unsigned char* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<signed char>(const signed char* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<signed char>(const signed char* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<short>(const short* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<short>(const short* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<unsigned short>(const unsigned short* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<unsigned short>(const unsigned short* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<int>(const int* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<int>(const int* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc,  const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<unsigned int>(const unsigned int* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<unsigned int>(const unsigned int* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<long>(const long* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<long>(const long* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
   template 
-    size_t fwrite<unsigned long>(const unsigned long* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const std::string& comp, const bool& time_measuring, const bool& byte_swap);
+    size_t fwrite<unsigned long>(const unsigned long* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative, const std::string& enc, const bool& time_measuring, const bool& byte_swap);
 
   template
     size_t fread<char>(char* ptr, size_t size, size_t nmemb, const int& key, const bool& byte_swap);

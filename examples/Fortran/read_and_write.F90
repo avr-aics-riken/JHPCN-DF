@@ -11,6 +11,7 @@ real(8),allocatable  :: work(:)
 real(4),allocatable  :: random_data(:)
 real(4),allocatable  :: work(:)
 #endif
+integer(8),parameter :: buff=32768
 
 ! setup
 tolerance=0.01
@@ -24,10 +25,11 @@ call random_number(random_data)
 !
 
 ! open file
-call JHPCNDF_OPEN(UNIT=KEY, UFILE='upper_bits.gz', LFILE='lower_bits.gz', ACTION='WRITE')
+call JHPCNDF_OPEN(UNIT=KEY, UFILE='upper_bits.gz', LFILE='lower_bits.gz', ACTION='WRITE', comp="gzip", buff_size=buff)
+
 
 ! encode and write
-call JHPCNDF_WRITE(UNIT=KEY, RECL=num_data, data=random_data, TOL=tolerance, IS_REL=.true., ENC="normal", comp="gzip")
+call JHPCNDF_WRITE(UNIT=KEY, RECL=num_data, data=random_data, TOL=tolerance, IS_REL=.true., ENC="normal")
 
 ! close file
 call JHPCNDF_CLOSE(KEY)
@@ -40,7 +42,7 @@ call JHPCNDF_CLOSE(KEY)
 allocate(work(num_data))
 
 ! open file
-call JHPCNDF_OPEN(UNIT=KEY2, UFILE='upper_bits.gz', LFILE='lower_bits.gz', ACTION='READ')
+call JHPCNDF_OPEN(UNIT=KEY2, UFILE='upper_bits.gz', LFILE='lower_bits.gz', ACTION='READ', comp="gzip", buff_size=buff)
 
 ! read file and decode
 call JHPCNDF_READ(UNIT=KEY2, RECL=num_data, data=work)

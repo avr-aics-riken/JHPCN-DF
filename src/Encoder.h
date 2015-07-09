@@ -27,7 +27,9 @@ namespace JHPCNDF
             virtual void make_upper_bits(const size_t& length, const T* const src, T* const dst) const=0;
             virtual void make_lower_bits(const size_t& length, const T* const src, T* const dst, T* const dst_lower) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for (size_t i=0; i<length; i++)
                 {
                     real_xor<1>(&(src[i]), &(dst[i]), &(dst_lower[i]));
@@ -57,7 +59,9 @@ namespace JHPCNDF
             }
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for(size_t i=0;i<length;i++)
                 {
                     dst[i]=src[i];
@@ -79,7 +83,9 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for (size_t i=0; i<length; i++)
                 {
                     double tolerance=this->tolerance;
@@ -149,7 +155,9 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for (size_t i=0; i<length; i++)
                 {
                     double tolerance=this->tolerance;
@@ -232,7 +240,9 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for (size_t i=0; i<length; i++)
                 {
                     double tolerance=this->tolerance;
@@ -282,7 +292,9 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for (size_t i=0; i<length; i++)
                 {
                     double tolerance=this->tolerance;
@@ -355,7 +367,9 @@ namespace JHPCNDF
         private:
             void make_upper_bits(const size_t& length, const T* const src, T* const dst) const
             {
+#ifdef USE_OPENMP
 #pragma omp parallel for
+#endif
                 for (int i=0;i<length; i++)
                 {
                     n_bit_zero_padding<1>(&(src[i]), &(dst[i]), split_position);
@@ -368,7 +382,7 @@ namespace JHPCNDF
     Encoder<T>* EncoderFactory(const std::string& name, const float& tolerance, const bool& is_relative)
     {
         Encoder<T>* enc=NULL;
-        if(name == "normal")
+        if(name == "original")
         {
             enc=new NormalEncoder<T>(tolerance, is_relative);
         }else if(name == "byte_aligned"){
