@@ -21,6 +21,9 @@ libjhpcndf_a_SOURCES= \
    FInterface.f90\
    FileInfoManager.h\
    IO.h\
+   BaseIO.h\
+   lz4IO.h\
+   zlibIO.h\
    Interface.cpp\
    Utility.h\
    jhpcndf.f90

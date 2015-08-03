@@ -11,67 +11,16 @@
 cmake_minimum_required(VERSION 2.6)
 project(JHPCNDFlib_PerformanceTest CXX)
 
-# add optimize option
-include(${PROJECT_SOURCE_DIR}/../../cmake/CompileOptionSelector.cmake)
-if(CMAKE_BUILD_TYPE STREQUAL "RELEASE")
-    CompileOptionSelector()
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-    ADD_DEFINITIONS(-DDEBUG)
-endif()
-
 option(REAL_8_BYTE "build test for double" OFF)
 if(REAL_8_BYTE)
     add_definitions(-DREAL_8_BYTE)
 endif()
 
-
-###################################################################
-# find libraries
-###################################################################
-# check OpenMP support and add option
-if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
-    FindOpenMP_quick_hack_fx10()
-else()
-    find_package(OpenMP REQUIRED)
-endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-
-# zlib
-if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
-    FindZlib_quick_hack_fx10()
-else()
-    find_package (ZLIB REQUIRED)
-endif()
-
-# JHPCNDF
-set(JHPCNDF_INCLUDE_DIRS
-    ${PROJECT_SOURCE_DIR}/../../include
-    ${PROJECT_SOURCE_DIR}/../../src
-    )
-set(JHPCNDF_LIBRARIES jhpcndf)
-link_directories( ${CMAKE_BINARY_DIR})
-
-###################################################################
-# show build settings
-###################################################################
-message( STATUS "Destination PATH: " ${CMAKE_INSTALL_PREFIX})
-message( STATUS "CMAKE_CXX_COMPILER: " ${CMAKE_CXX_COMPILER})
-message( STATUS "CMAKE_CXX_FLAGS: " ${CMAKE_CXX_FLAGS})
-
-###################################################################
-# include files
-###################################################################
-include_directories( 
-    ${JHPCNDF_INCLUDE_DIRS}
-    ${ZLIB_INCLUDE_DIRS}
-    )
-
 ###################################################################
 # build & install
 ###################################################################
 add_executable(PerformanceTest PerformanceTest.cpp)
-target_link_libraries(PerformanceTest jhpcndf ${ZLIB_LIBRARIES})
+target_link_libraries(PerformanceTest jhpcndf ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
 
 add_executable(DumpTool DumpTool.cpp)
-target_link_libraries(DumpTool jhpcndf ${ZLIB_LIBRARIES})
+target_link_libraries(DumpTool jhpcndf ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})

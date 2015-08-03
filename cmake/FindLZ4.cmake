@@ -8,41 +8,41 @@
 #
 ###################################################################################
 
-# - Try to find JHPCNDF
+# - Try to find LZ4
 # Once done, this will define
 #
-#  JHPCNDF_FOUND - system has JHPCNDF
-#  JHPCNDF_INCLUDE_DIRS - the JHPCNDF include directories
-#  JHPCNDF_LIBRARIES - link these to use JHPCNDF
+#  LZ4_FOUND - system has LZ4
+#  LZ4_INCLUDE_DIRS - the LZ4 include directories
+#  LZ4_LIBRARIES - link these to use LZ4
 
 include(LibFindMacros)
 
 # Use pkg-config to get hints about paths
-libfind_pkg_check_modules(JHPCNDF_PKGCONF JHPCNDF)
+libfind_pkg_check_modules(LZ4_PKGCONF LZ4)
 
 if(CMAKE_PREFIX_PATH)
-  set(JHPCNDF_CANDIDATE_PATH ${CMAKE_PREFIX_PATH})
+  set(LZ4_CANDIDATE_PATH ${CMAKE_PREFIX_PATH})
   file(GLOB tmp "${CMAKE_PREFIX_PATH}/[Ll][Zz]4*/")
-  list(APPEND JHPCNDF_CANDIDATE_PATH ${tmp})
+  list(APPEND LZ4_CANDIDATE_PATH ${tmp})
 endif()
 
 # Include dir
-find_path(JHPCNDF_INCLUDE_DIR
-  NAMES jhpcndf.h
-  PATHS ${JHPCNDF_ROOT} ${JHPCNDF_PKGCONF_INCLUDE_DIRS} ${JHPCNDF_CANDIDATE_PATH}
+find_path(LZ4_INCLUDE_DIR
+  NAMES lz4frame.h
+  PATHS ${LZ4_ROOT} ${LZ4_PKGCONF_INCLUDE_DIRS} ${LZ4_CANDIDATE_PATH}
   PATH_SUFFIXES include
 )
 
 # Finally the library itself
-find_library(JHPCNDF_LIBRARY
-  NAMES jhpcndf
-  PATHS ${JHPCNDF_ROOT} ${JHPCNDF_PKGCONF_LIBRARY_DIRS} ${JHPCNDF_CANDIDATE_PATH}
+find_library(LZ4_LIBRARY
+  NAMES lz4
+  PATHS ${LZ4_ROOT} ${LZ4_PKGCONF_LIBRARY_DIRS} ${LZ4_CANDIDATE_PATH}
   PATH_SUFFIXES lib 
 )
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
-set(JHPCNDF_PROCESS_INCLUDES JHPCNDF_INCLUDE_DIR)
-set(JHPCNDF_PROCESS_LIBS JHPCNDF_LIBRARY)
-libfind_process(JHPCNDF)
+set(LZ4_PROCESS_INCLUDES LZ4_INCLUDE_DIR)
+set(LZ4_PROCESS_LIBS LZ4_LIBRARY)
+libfind_process(LZ4)
 

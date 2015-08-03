@@ -11,6 +11,23 @@
 ================
 
 ------------------
+2015-08-03
+- API changed(compression method argument is moved from fwrite() to fopen())
+- change default encoder from normal to binary_search
+- "normal" encoder is renamed to "original"
+- support Zlib's compression level and strategy
+- support LZ4 (optional)
+- add build option to disable OpenMP
+- add build option to disable Fortran Interface
+
+------------------
+2015-06-19
+- introduce relative tolerance
+- support variable write buffer for zlib
+- support byte swap IO
+- add fwrite() and fread() for signed/unsigned char, short, int and long
+
+------------------
 2014-12-31
 - add copyright and contributors
 

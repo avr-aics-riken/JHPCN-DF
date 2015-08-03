@@ -23,9 +23,24 @@ namespace JHPCNDF
     //@param filename_upper 上位bit側のデータを格納するファイルの名前
     //@param filename_lower 下位bit側のデータを格納するファイルの名前
     //@param mode           ファイルopen時のモードを示す文字列(通常のfopenと同じ）
-    //@param buff_size      zlibを用いて圧縮/伸張する際のバッファサイズ(単位はbyte)
+    //@param comp           圧縮形式
+    //compに指定できる圧縮形式は以下の2種類がある
+    //  none:        圧縮しない
+    //  gzip_n_m:    gzip形式で圧縮
+    //               n, m はzlibに渡すオプションで、nは圧縮レベル(1～9)、mはstrategy(1～4)を表す
+    //               '_'以降は省略可能
+    //               省略した場合や範囲外の値が設定された場合はzlibのデフォルト値が使われる。
+    //               それぞれの値の意味はzlib.hを参照のこと
+    //               なお、本来は圧縮レベルに0(=無圧縮)も指定できるが
+    //               本ライブラリでは0を指定した時はデフォルト値(-1)を使う。
+    //               無圧縮にする場合は、compに"none"を指定すること
+    //   lz4_nn:     lz4形式で圧縮
+    //               nnはlz4ライブラリに渡すオプションで、圧縮レベル(0～16)を表す
+    //               ビルド時に-DUSE_LZ4オプションを指定していなかった場合は、無効なオプションとして扱われる
+    //
+    //@param buff_size      圧縮/伸張する際のバッファサイズ(単位はbyte)
     //@ret   開いたファイルを識別するためのID番号
-    int fopen(const std::string& filename_upper, const std::string& filename_lower = "", const char* mode = "rb", const size_t& buff_size=32768);
+    int fopen(const std::string& filename_upper, const std::string& filename_lower = "", const char* mode = "rb", const std::string& comp = "gzip", const size_t& buff_size=32768);
 
 
     //@brief JHPCNDF::fopenで開いたファイルを閉じる
@@ -41,23 +56,18 @@ namespace JHPCNDF
     //@param tolerance      許容誤差
     //@param is_relative    許容誤差を相対値で指定するかどうかのフラグ
     //@param enc            使用するエンコーダの種類
-    //@param comp           圧縮形式
     //@param time_measuring trueが指定されると、処理にかかった時間を計測し標準エラー出力ヘ出力する
     //@param byte_swap      ファイル出力時にエンディアン変換を行う
     //
     //encに指定できるエンコーダは以下の6種類がある
-    //  normal:        論文どおりの実装
+    //  original:      論文どおりの実装
     //  linear_search: 分割位置を線形探索により上位bitから順に探す
     //  binary_search: 分割位置を二分探索で探す
     //  byte_aligned:  上位bitと下位bitの分割位置を8*n bitの位置に制限する
     //  nbit_filter:   指定されたbit位置（tolerance) 以下を0埋めする
     //  dummy:         分割しない（全てのデータを上位bit側に出力する)
-    //
-    //compに指定できる圧縮形式は以下の2種類がある
-    //  gzip:         gzip形式で圧縮
-    //  none:        圧縮しない
     template <typename T>
-    size_t fwrite(const T* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative=true, const std::string& enc="normal", const std::string& comp = "gzip", const bool& time_measuring = false, const bool& byte_swap=false);
+    size_t fwrite(const T* ptr, size_t size, size_t nmemb, const int& key, const float& tolerance, const bool& is_relative=true, const std::string& enc="binary_search", const bool& time_measuring = false, const bool& byte_swap=false);
 
 
 
@@ -88,7 +98,7 @@ namespace JHPCNDF
     //encに指定できるエンコーダはfwriteの項を参照のこと
     //
     template<typename T>
-    void encode(const size_t& length, const T* const src, T* const dst, T* const dst_lower, const float& tolerance, const bool& is_relative=true, const std::string& enc = "normal", const bool time_measuring = false);
+    void encode(const size_t& length, const T* const src, T* const dst, T* const dst_lower, const float& tolerance, const bool& is_relative=true, const std::string& enc = "binary_search", const bool time_measuring = false);
 
 
     //@beief メモリ上でJHPCN-DFによるデータのデコードを行う
@@ -109,19 +119,19 @@ extern "C"
 {
 #endif
 //@brief JHPCNDF::fopenに対する C言語用インターフェース
-int JHPCNDF_fopen(const char* filename_upper, const char* filename_lower, const char* mode, const size_t buff_size);
+int JHPCNDF_fopen(const char* filename_upper, const char* filename_lower, const char* mode, const char* comp, const size_t buff_size);
 
 //@brief JHPCNDF::fcloseに対する C言語用インターフェース
 void JHPCNDF_fclose(const int key);
 
 //@brief JHPCNDF::fwriteに対する C言語用インターフェース(float版)
-size_t JHPCNDF_fwrite_float(const float* ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc, const char* comp);
+size_t JHPCNDF_fwrite_float(const float* ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc);
 
 //@brief JHPCNDF::fwriteに対する C言語用インターフェース(double版)
-size_t JHPCNDF_fwrite_double(const double * ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc, const char* comp);
+size_t JHPCNDF_fwrite_double(const double * ptr, size_t size, size_t nmemb, const int key, const float tolerance, const int is_relative, const char* enc);
 
 //@brief JHPCNDF::fwriteに対する C言語用インターフェース(その他版)
-size_t JHPCNDF_fwrite(const void* ptr, size_t size, size_t nmemb, const int key, const char* enc, const char* comp);
+size_t JHPCNDF_fwrite(const void* ptr, size_t size, size_t nmemb, const int key, const char* enc);
 
 //@brief JHPCNDF::freadに対する C言語用インターフェース(float版)
 size_t JHPCNDF_fread_float(float* ptr, size_t size, size_t nmemb, const int key);
