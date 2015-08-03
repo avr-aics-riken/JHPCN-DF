@@ -19,7 +19,7 @@ namespace JHPCNDF
   class lz4IO :public IO
   {
     public:
-      lz4IO(const size_t& arg_buffer_size): buffer_size(arg_buffer_size)
+      lz4IO(const size_t& arg_buffer_size, const int& arg_compression_level): buffer_size(arg_buffer_size)
       {
         LZ4F_errorCode_t err=LZ4F_createCompressionContext(&ctx, LZ4_versionNumber());
         if(err != 0)
@@ -31,7 +31,7 @@ namespace JHPCNDF
         {
           std::cerr<<"LZ4FDecompressionContext failed!"<<std::endl;
         }
-        preferences.compressionLevel=0;
+        preferences.compressionLevel=arg_compression_level;
         preferences.autoFlush=0;
         for(int i=0; i<4;i++) preferences.reserved[i]=0;
         preferences.frameInfo.blockSizeID=LZ4F_default;

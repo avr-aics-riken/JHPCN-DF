@@ -11,16 +11,22 @@
 cmake_minimum_required(VERSION 2.6)
 project(JHPCNDFlib_PerformanceTest CXX)
 
-option(REAL_8_BYTE "build test for double" OFF)
-if(REAL_8_BYTE)
-    add_definitions(-DREAL_8_BYTE)
-endif()
-
 ###################################################################
 # build & install
 ###################################################################
 add_executable(PerformanceTest PerformanceTest.cpp)
-target_link_libraries(PerformanceTest jhpcndf ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
+target_link_libraries(PerformanceTest JHPCNDF ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
 
 add_executable(DumpTool DumpTool.cpp)
-target_link_libraries(DumpTool jhpcndf ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
+target_link_libraries(DumpTool JHPCNDF ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
+
+add_executable(PerformanceTest_Double PerformanceTest.cpp)
+target_link_libraries(PerformanceTest_Double JHPCNDF ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
+
+add_executable(DumpTool_Double DumpTool.cpp)
+target_link_libraries(DumpTool_Double JHPCNDF ${ZLIB_LIBRARIES} ${LZ4_LIBRARIES})
+
+set_target_properties(PerformanceTest_Double DumpTool_Double
+  PROPERTIES COMPILE_DEFINITIONS _REAL_IS_DOUBLE_
+  )
+

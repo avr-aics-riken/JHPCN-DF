@@ -14,6 +14,7 @@
 
 #include <string>
 #include <sstream>
+#include <cstdlib>
 #include "BaseIO.h"
 #include "zlibIO.h"
 #ifdef USE_LZ4
@@ -39,7 +40,7 @@ namespace JHPCNDF
           {
             std::stringstream oss;
             oss<<name.substr(n+1,1);
-            int tmp_level=std::stoi(oss.str());
+            int tmp_level=std::atoi(oss.str().c_str());
             if (tmp_level>0 && tmp_level<=9) // level=0(無圧縮)の時はDEFAULT値を使うようにする
             {
               level=tmp_level;
@@ -52,7 +53,7 @@ namespace JHPCNDF
           {
             std::stringstream oss;
             oss<<name.substr(n+1,1);
-            int tmp_strategy=std::stoi(oss.str());
+            int tmp_strategy=std::atoi(oss.str().c_str());
             if (tmp_strategy>=0 && tmp_strategy<=4)
             {
               strategy=tmp_strategy;
@@ -70,13 +71,13 @@ namespace JHPCNDF
           {
             std::stringstream oss;
             oss<<name.substr(n+1,2);
-            int tmp_level=std::stoi(oss.str());
+            int tmp_level=std::atoi(oss.str().c_str());
             if (tmp_level>=0 && tmp_level<=16)
             {
               level=tmp_level;
             }
           }
-          io=new lz4IO(buff_size);
+          io=new lz4IO(buff_size, level);
 #endif
         }else{
             std::cerr<<"invalid io class name specified."<<std::endl;

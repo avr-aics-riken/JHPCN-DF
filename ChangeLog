@@ -21,6 +21,10 @@
 - add build option to disable Fortran Interface
 
 ------------------
+2015-07-30
+- introduce BUILD_DIR and update ug
+
+------------------
 2015-06-19
 - introduce relative tolerance
 - support variable write buffer for zlib

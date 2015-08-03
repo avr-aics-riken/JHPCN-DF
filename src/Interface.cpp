@@ -355,12 +355,12 @@ void JHPCNDF_decode_double(const size_t length, const double* const src_upper, c
 extern "C"
 {
   //subroutine jhpcndf_open(unit, ufile, lfile, action, comp, buff_size)
-  void jhpcndf_open__(int* unit, const char* ufile, const char* lfile, const char* action, const char* comp, const size_t buff_size)
+  void jhpcndf_open__(int* unit, const char* ufile, const char* lfile, const char* action, const char* comp, const size_t* buff_size)
   {
     std::string mode(action);
     std::transform(mode.begin(), mode.end(), mode.begin(), ::tolower);
     mode=mode=="write"?"w+b":"rb";
-    *unit = JHPCNDF::fopen(ufile, lfile, mode.c_str(), comp, buff_size);
+    *unit = JHPCNDF::fopen(ufile, lfile, mode.c_str(), comp, *buff_size);
   }
 
   //subroutine jhpcndf_close(unit)
@@ -420,21 +420,21 @@ extern "C"
     JHPCNDF::fread(data, 1, *recl, *unit);
   }
 
-  void jhpcndf_encode_real4__(const size_t length, const float* const src, float* const dst, float* const dst_lower, const float tolerance, bool* is_relative, const char* enc)
+  void jhpcndf_encode_real4__(const size_t* length, const float* const src, float* const dst, float* const dst_lower, const float* tolerance, bool* is_relative, const char* enc)
   {
-    JHPCNDF::encode<float>(length, src, dst, dst_lower, tolerance, is_relative, enc);
+    JHPCNDF::encode<float>(*length, src, dst, dst_lower, *tolerance, *is_relative, enc);
   }
-  void jhpcndf_encode_real8__(const size_t length, const double* const src, double* const dst, double* const dst_lower, const float tolerance, bool* is_relative, const char* enc)
+  void jhpcndf_encode_real8__(const size_t* length, const double* const src, double* const dst, double* const dst_lower, const float* tolerance, bool* is_relative, const char* enc)
   {
-    JHPCNDF::encode<double>(length, src, dst, dst_lower, tolerance, is_relative, enc);
+    JHPCNDF::encode<double>(*length, src, dst, dst_lower, *tolerance, *is_relative, enc);
   }
-  void jhpcndf_decode_real4__(const size_t length, const float* const src_upper, const float* const src_lower, float* const dst)
+  void jhpcndf_decode_real4__(const size_t* length, const float* const src_upper, const float* const src_lower, float* const dst)
   {
-    JHPCNDF::decode<float>(length, src_upper, src_lower, dst);
+    JHPCNDF::decode<float>(*length, src_upper, src_lower, dst);
   }
-  void jhpcndf_decode_real8__(const size_t length, const double* const src_upper, const double* const src_lower, double* const dst)
+  void jhpcndf_decode_real8__(const size_t* length, const double* const src_upper, const double* const src_lower, double* const dst)
   {
-    JHPCNDF::decode<double>(length, src_upper, src_lower, dst);
+    JHPCNDF::decode<double>(*length, src_upper, src_lower, dst);
   }
 }
 

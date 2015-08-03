@@ -11,8 +11,9 @@ SUBDIRS = @MAKE_SUB_DIRS@
 
 bin_SCRIPTS    = jhpcndf-config
 CLEANFILES     = $(bin_SCRIPTS)
-EXTRA_DIST     = jhpcndf-config.in LICENSE src/Doxyfile jhpcndf-uname
-dist_data_DATA = AUTHORS COPYING ChangeLog README LICENSE
+EXTRA_DIST     = jhpcndf-config.in LICENSE BUILD_DIR/.gitkeep test \
+                 CMakeLists.txt cmake examples/CMakeLists.txt doc/Doxyfile
+dist_data_DATA = AUTHORS COPYING ChangeLog README LICENSE NEWS README.md
 
 clean-local:
 	find ./ -name *.obj | xargs rm -f

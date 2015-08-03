@@ -12,10 +12,12 @@
 
 #ifndef INTERFACE_H
 #define INTERFACE_H
+
+#ifdef __cplusplus
+
 //
 // Interface routines for C++
 //
-#ifdef __cplusplus
 #include <string>
 namespace JHPCNDF
 {
@@ -26,7 +28,7 @@ namespace JHPCNDF
     //@param comp           圧縮形式
     //compに指定できる圧縮形式は以下の2種類がある
     //  none:        圧縮しない
-    //  gzip_n_m:    gzip形式で圧縮
+    //  gzip_n_m:    gzip形式で圧縮(default)
     //               n, m はzlibに渡すオプションで、nは圧縮レベル(1～9)、mはstrategy(1～4)を表す
     //               '_'以降は省略可能
     //               省略した場合や範囲外の値が設定された場合はzlibのデフォルト値が使われる。
@@ -109,15 +111,14 @@ namespace JHPCNDF
     template<typename T>
     void decode(const size_t& length, const T* const src_upper, const T* const src_lower, T* const dst);
 } //end of namespace JHPCNDF
+extern "C"
+{
 #endif
 
 //
 // Interface routines for C
 //
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+
 //@brief JHPCNDF::fopenに対する C言語用インターフェース
 int JHPCNDF_fopen(const char* filename_upper, const char* filename_lower, const char* mode, const char* comp, const size_t buff_size);
 

@@ -7,15 +7,11 @@
 # 
 ##############################################################################
 
-AUTOMAKE_OPTIONS = subdir-objects
 
-lib_LIBRARIES = libjhpcndf.a
+lib_LIBRARIES = libJHPCNDF.a
 
-libjhpcndf_a_CXXFLAGS = @JHPCNDF_CFLAGS@ \
-                   -I$(top_builddir)/include \
-                   -I$(top_builddir)/src 
-
-libjhpcndf_a_SOURCES= \
+libJHPCNDF_a_CXXFLAGS = -I$(top_srcdir)/include @ZLIB_FLAGS@ @LZ4_FLAGS@
+libJHPCNDF_a_SOURCES= \
    Decoder.h\
    Encoder.h\
    FInterface.f90\
@@ -29,6 +25,4 @@ libjhpcndf_a_SOURCES= \
    jhpcndf.f90
 
 
-JHPCNDF_includedir = $(includedir)
-JHPCNDF_include_HEADERS = $(top_builddir)/include/jhpcndf.h
-
+include_HEADERS = $(top_srcdir)/include/jhpcndf.h

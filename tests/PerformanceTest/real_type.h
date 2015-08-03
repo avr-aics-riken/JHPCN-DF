@@ -12,7 +12,7 @@
 #ifndef REAL_TYPE_H
 #define REAL_TYPE_H
 
-#ifdef REAL_8_BYTE
+#ifdef _REAL_IS_DOUBLE_
 #define REAL_TYPE double
 #else
 #define REAL_TYPE float

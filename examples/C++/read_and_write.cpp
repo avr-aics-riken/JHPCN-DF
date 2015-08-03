@@ -3,7 +3,8 @@
 #include "jhpcndf.h"
 
 #define NUM_DATA 10000
-#ifdef REAL_8_BYTE
+
+#ifdef _REAL_IS_DOUBLE_
 #define REAL_TYPE double
 #else
 #define REAL_TYPE float
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
     }
 
     // Open file
-    int key=JHPCNDF::fopen("upper_bits.gz", "lower_bits.gz", "w+b");
+    int key=JHPCNDF::fopen("upper_bits", "lower_bits", "w+b");
 
     // Encode and write
     JHPCNDF::fwrite(random_data, sizeof(REAL_TYPE), num_data, key, tolerance);
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
     REAL_TYPE* work = new REAL_TYPE[num_data];
 
     // OpenFile
-    int key2=JHPCNDF::fopen("upper_bits.gz", "lower_bits.gz", "rb");
+    int key2=JHPCNDF::fopen("upper_bits", "lower_bits", "rb");
 
     // Read and decode
     JHPCNDF::fread(work, sizeof(REAL_TYPE), num_data, key2);
