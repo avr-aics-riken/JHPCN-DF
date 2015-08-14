@@ -47,6 +47,7 @@ namespace
         uint64_t integer;
     };
 
+    //@brief num_elements個のSIZEビットの変数のエンディアン変換を行う
     template <size_t SIZE>
     void convert_endian(char* data, const size_t& num_elements)
     {

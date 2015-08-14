@@ -91,7 +91,7 @@ interface  jhpcndf_read
 end interface
 
 interface jhpcndf_encode
-subroutine jhpcndf_encode_real4_(length, src, dst, dst_lower, tol, is_rel, enc)
+subroutine jhpcndf_encode_real4(length, src, dst, dst_lower, tol, is_rel, enc)
 implicit none
 integer(8)        :: length
 real(4)           :: src(:)
@@ -100,9 +100,9 @@ real(4)           :: dst_lower(:)
 real(4)           :: tol
 logical           :: is_rel
 character(len=*)  :: enc
-end subroutine jhpcndf_encode_real4_
+end subroutine jhpcndf_encode_real4
 
-subroutine jhpcndf_encode_real8_(length, src, dst, dst_lower, tol, is_rel, enc)
+subroutine jhpcndf_encode_real8(length, src, dst, dst_lower, tol, is_rel, enc)
 implicit none
 integer(8)        :: length
 real(8)           :: src(:)
@@ -111,24 +111,24 @@ real(8)           :: dst_lower(:)
 real(4)           :: tol
 logical           :: is_rel
 character(len=*)  :: enc
-end subroutine jhpcndf_encode_real8_
+end subroutine jhpcndf_encode_real8
 end interface
 
 interface jhpcndf_decode
-subroutine jhpcndf_decode_real4_(length, src_upper, src_lower, dst)
+subroutine jhpcndf_decode_real4(length, src_upper, src_lower, dst)
 implicit none
 integer(8)        :: length
 real(4)           :: src_upper(:)
 real(4)           :: src_lower(:)
 real(4)           :: dst(:)
-end subroutine jhpcndf_decode_real4_
+end subroutine jhpcndf_decode_real4
 
-subroutine jhpcndf_decode_real8_(length, src_upper, src_lower, dst)
+subroutine jhpcndf_decode_real8(length, src_upper, src_lower, dst)
 implicit none
 integer(8)        :: length
 real(8)           :: src_upper(:)
 real(8)           :: src_lower(:)
 real(8)           :: dst(:)
-end subroutine jhpcndf_decode_real8_
+end subroutine jhpcndf_decode_real8
 end interface
 end module

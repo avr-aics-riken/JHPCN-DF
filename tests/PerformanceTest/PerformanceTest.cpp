@@ -18,12 +18,32 @@
 #include <unistd.h>
 #include "jhpcndf.h"
 #include "Utility.h"
+
+
+//計時関数
+#ifdef USE_OPENMP
 #include <omp.h>
+#else
+#include <sys/time.h>
+#endif
+namespace{
+double wtime(void)
+{
+#ifdef USE_OPENMP
+  return omp_get_wtime();
+#else
+  struct timeval  tv;
+  gettimeofday(&tv, NULL);
+  return (double)tv.tv_sec+(double)tv.tv_usec*1e-6;
+#endif
+}
+}
+
+// 乱数生成
 #include "real_type.h"
 #if __cplusplus >= 201103L
 #include <random>
 #endif
-
 namespace{
   template<typename T>
     class RandomNumber
@@ -61,10 +81,11 @@ void usage_and_exit(const char* cmd, const int& err_code)
   std::cerr<<"usage: "<<cmd<<" [-t tolerance] [-b buffer_size] [-e encoder] [-n number_of_data] "<< std::endl;
   exit(err_code);
 }
-void argument_parser(int argc, char *argv[], float* tolerance, size_t* buffer_size, std::string* encoder, size_t* num_data, std::string* level, std::string* strategy)
+
+void argument_parser(int argc, char *argv[], float* tolerance, size_t* buffer_size, std::string* encoder, size_t* num_data, std::string* comp)
 {
   int results=0;
-  while((results=getopt(argc,argv,"t:b:e:n:l:s:")) != -1)
+  while((results=getopt(argc,argv,"t:b:e:n:c:")) != -1)
   {
     switch(results)
     {
@@ -80,11 +101,8 @@ void argument_parser(int argc, char *argv[], float* tolerance, size_t* buffer_si
       case 'n':
         *num_data=std::atol(optarg);
         break;
-      case 'l':
-        *level=optarg;
-        break;
-      case 's':
-        *strategy=optarg;
+      case 'c':
+        *comp=optarg;
         break;
       case '?':
         usage_and_exit(argv[0], -1);
@@ -95,15 +113,14 @@ void argument_parser(int argc, char *argv[], float* tolerance, size_t* buffer_si
 
 int main(int argc, char *argv[])
 {
-  double t0=omp_get_wtime();
+  double t0=wtime();
   float tolerance=0.5;
   size_t buffer_size=32768;
-  std::string encoder="";
+  std::string encoder="binary_search";
   size_t num_data=1000;
-  std::string level="0";
-  std::string strategy="0";
+  std::string comp="gzip";
 
-  argument_parser(argc, argv, &tolerance, &buffer_size, &encoder, &num_data, &level, &strategy);
+  argument_parser(argc, argv, &tolerance, &buffer_size, &encoder, &num_data, &comp);
 
   std::cerr <<"=========================================="<<std::endl;
   std::cerr <<" Test settings"<<std::endl;
@@ -111,30 +128,27 @@ int main(int argc, char *argv[])
   std::cerr <<"   encoder     = "<<encoder<<std::endl;
   std::cerr <<"   tolerance   = "<<tolerance<<std::endl;
   std::cerr <<"   buffer size = "<<buffer_size <<" Byte"<<std::endl; 
-  std::cerr <<"   COMPRESSION LEVEL for zib    = "<<level<<std::endl;
-  std::cerr <<"   COMPRESSION STRATEGY for zib = "<<strategy<<std::endl;
+  std::cerr <<"   compression method = "<<comp<<std::endl;
   std::cerr <<"=========================================="<<std::endl<<std::endl;
 
   REAL_TYPE* random_data= new REAL_TYPE [num_data];
   RandomNumber<REAL_TYPE> generator;
   generator(num_data, random_data);
 
-  std::string comp("gzip_");
-  comp+=level+"_"+strategy;
-  int key=JHPCNDF::fopen("input_data.gz", "", "w+b", comp);
+  std::string filename("input_data");
+  int key=JHPCNDF::fopen(filename+"_"+comp, "", "w+b", comp);
   JHPCNDF::fwrite(random_data, sizeof(REAL_TYPE), num_data, key, 1.0, true, "dummy");
   JHPCNDF::fclose(key);
 
-  double t_init=omp_get_wtime()-t0;
+  double t_init=wtime()-t0;
   std::cerr << "Elapsed time for initialize performance test: "<<t_init<<" sec"<<std::endl;
 
-  std::string filename;
   std::ostringstream oss1;
   std::ostringstream oss2;
   oss1<<tolerance;
   oss2<<buffer_size;
-  filename=encoder+"_"+oss1.str()+"_"+oss2.str();
-  key=JHPCNDF::fopen(filename+".gz", filename+"_lower.gz", "w+b", comp, buffer_size);
+  filename=encoder+"_"+comp+"_"+oss1.str()+"_"+oss2.str();
+  key=JHPCNDF::fopen(filename, filename+"_lower", "w+b", comp, buffer_size);
   JHPCNDF::fwrite(random_data, sizeof(REAL_TYPE), num_data, key, tolerance, true, encoder, true);
   JHPCNDF::fclose(key);
 
@@ -146,7 +160,7 @@ int main(int argc, char *argv[])
   delete [] random_data;
 
   REAL_TYPE* work = new REAL_TYPE [num_data];
-  key=JHPCNDF::fopen(filename+".gz", "", "rb");
+  key=JHPCNDF::fopen(filename, "", "rb", comp);
   JHPCNDF::fread(work, sizeof(REAL_TYPE), num_data, key);
   JHPCNDF::fclose(key);
 

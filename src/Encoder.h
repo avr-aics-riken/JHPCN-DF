@@ -23,6 +23,7 @@ namespace JHPCNDF
     class Encoder
     {
         public:
+            virtual ~Encoder(){};
             virtual void operator()(const size_t& length, const T* const src, T* const dst, T* const dst_lower=NULL) const=0;
             virtual void make_upper_bits(const size_t& length, const T* const src, T* const dst) const=0;
             virtual void make_lower_bits(const size_t& length, const T* const src, T* const dst, T* const dst_lower) const
@@ -398,8 +399,8 @@ namespace JHPCNDF
             enc=new NbitFilter<T>(n_bit);
         }else{
             std::cerr<<"invalid encoder name specified."<<std::endl;
-            std::cerr<<"fall back to normal encoder"<<std::endl;
-            enc=new NormalEncoder<T>(tolerance, is_relative);
+            std::cerr<<"fall back to default encoder(binary_search)"<<std::endl;
+            enc=new BinarySearchEncoder<T>(tolerance, is_relative);
         }
         return enc;
     }

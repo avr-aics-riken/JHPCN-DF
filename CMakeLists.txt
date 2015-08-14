@@ -47,24 +47,28 @@ option(use_lz4                "enable lz4" OFF)
 
 
 if(with_Fortran_interface)
-project(JHPCNDFlib CXX Fortran)
+  project(JHPCNDFlib CXX Fortran)
 else()
-project(JHPCNDFlib CXX)
+  project(JHPCNDFlib CXX)
 endif()
 
 set(CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/CompileOptionSelector.cmake)
 
 #コンパイルオプションの指定
+if(build_unit_tests)
 CPP11()
+endif()
 if(with_Fortran_interface)
 FreeForm()
 endif()
 AddOptimizeOption()
 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-    ADD_DEFINITIONS(-DDEBUG)
+  ADD_DEFINITIONS(-DDEBUG)
 else()
+  if(with_OpenMP)
     ADD_DEFINITIONS(-DTIME_MEASURE)
+  endif()
 endif()
 if(with_sse)
   AddSSE()
@@ -76,8 +80,8 @@ endif()
 ##############################################
 # 依存するパッケージを探す
 ##############################################
+# check OpenMP support and add options
 if(with_OpenMP)
-# check OpenMP support and add option
   if(CMAKE_CXX_COMPILER MATCHES ".*FCCpx$")
     FindOpenMP_quick_hack_fx10()
   else()
@@ -93,6 +97,7 @@ else()
     find_package (ZLIB REQUIRED)
 endif()
 
+#lz4
 if(use_lz4)
   find_package(LZ4 REQUIRED)
   ADD_DEFINITIONS(-DUSE_LZ4)
@@ -133,13 +138,14 @@ include_directories(
 #####################################################
 # ライブラリ本体のビルド&インストール
 #####################################################
-add_library(jhpcndf STATIC ${LIB_SRC})
-install (TARGETS jhpcndf DESTINATION lib)
+add_library(JHPCNDF STATIC ${LIB_SRC})
+install (TARGETS JHPCNDF DESTINATION lib)
 install (FILES ${PROJECT_SOURCE_DIR}/include/jhpcndf.h  DESTINATION include)
 if(with_Fortran_interface)
 install (FILES ${PROJECT_BINARY_DIR}/jhpcndf.mod        DESTINATION include)
 endif()
 install (FILES ${PROJECT_SOURCE_DIR}/cmake/FindJHPCNDF.cmake   DESTINATION share)
+install (FILES ${PROJECT_SOURCE_DIR}/cmake/FindLZ4.cmake       DESTINATION share)
 install (FILES ${PROJECT_SOURCE_DIR}/cmake/LibFindMacros.cmake DESTINATION share)
 install (FILES ${PROJECT_SOURCE_DIR}/cmake/Toolchain_K.cmake   DESTINATION share)
 

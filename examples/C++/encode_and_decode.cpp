@@ -3,7 +3,8 @@
 #include "jhpcndf.h"
 
 #define NUM_DATA 100000
-#ifdef REAL_8_BYTE
+
+#ifdef _REAL_IS_DOUBLE_
 #define REAL_TYPE double
 #else
 #define REAL_TYPE float

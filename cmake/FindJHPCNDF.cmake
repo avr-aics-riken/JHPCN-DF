@@ -22,7 +22,7 @@ libfind_pkg_check_modules(JHPCNDF_PKGCONF JHPCNDF)
 
 if(CMAKE_PREFIX_PATH)
   set(JHPCNDF_CANDIDATE_PATH ${CMAKE_PREFIX_PATH})
-  file(GLOB tmp "${CMAKE_PREFIX_PATH}/[Ll][Zz]4*/")
+  file(GLOB tmp "${CMAKE_PREFIX_PATH}/[Jj][Hh][Pp][Cc][Nn][Dd][Ff]*/")
   list(APPEND JHPCNDF_CANDIDATE_PATH ${tmp})
 endif()
 
@@ -35,7 +35,7 @@ find_path(JHPCNDF_INCLUDE_DIR
 
 # Finally the library itself
 find_library(JHPCNDF_LIBRARY
-  NAMES jhpcndf
+  NAMES JHPCNDF
   PATHS ${JHPCNDF_ROOT} ${JHPCNDF_PKGCONF_LIBRARY_DIRS} ${JHPCNDF_CANDIDATE_PATH}
   PATH_SUFFIXES lib 
 )
