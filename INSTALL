@@ -35,7 +35,8 @@ CentOS 6.6 + gcc 4.4.7 + autoconf 2.63 + automake 1.11.1
 HOW TO BUILD
 ============
 
-1. with configure
+1. Autotools
+------------
 
 $ cd BUILD_DIR
 $ ../configure [options]
@@ -44,46 +45,58 @@ $ make install
 
 
 Configure options:
+
 --host=hostname
-Specify in case of cross-compilation.
+   Specify in case of cross-compilation.
 
 --prefix=INSTALL_DIR
-Specify a directory to be installed. The default directory is /usr/local/JHPCNDF
+   Specify a directory to be installed. The default directory is /usr/local/JHPCNDF
 
 --with-comp=(INTEL|FJ|GNU)
-If Intel compiler is used, choose INTEL, and if Fujitsu compiler, specify FJ.
-This option is mandatory when using both compilers.
+   If Intel compiler is used, choose INTEL, and if Fujitsu compiler, specify FJ.
+   This option is mandatory when using both compilers.
 
 --with-example=(no|yes)
-Specify building example. The default is no.
+   Specify building example. The default is no.
 
---with-f90real=(4|8)
-Specify the REAL_TYPE macro by selecting 4(float) or 8(double). If this option is
-omitted, float type will be used.
+--with-finterface=(no|yes)
+   Specify yes, if Fortran interface is required. In addition, Fortran example is compiled.
+
+--with-f-precision=(single|double)
+   Specify the REAL_TYPE macro by selecting single or double. If this option is
+   omitted, float type will be used.
+
+--with-lz4=DIR
+   Specify installed directory of lz4 library.
+
+--with-openmp=(yes|no)
+   Enable OpenMP directives. The default is yes.
+
+--with-zlib=DIR
+   Specify installed directory of Zlib.
+
 
 
 CC=C_COMPILER
-Specify a C compiler. *
+   Specify a C compiler.
 
 CFLAGS=C_OPTIONS
-Specify compiler options. *
+   Specify compiler options.
 
 CXX=CXX_COMPILER
-Specify a C++ compiler, e.g., g++, icpc, xlc++ or others.
+   Specify a C++ compiler, e.g., g++, icpc, xlc++ or others.
 
 CXXFLAGS=CXX_OPTIONS
-Specify compiler options.
+   Specify compiler options.
 
 F90=FORTRAN90_COMPILER
-Specify a fortran90 compiler. *
+   Specify a fortran90 compiler.
 
 F90FLAGS=FORTRAN90_OPTIONS
-Specify compiler options. *
+   Specify compiler options.
 
 LDFLAGS=LD_OPTIONS
-Specify directory path for Fortran libraries. *
-
-* This option affect only example.
+   Specify directory path for Fortran libraries.
 
 
 
@@ -91,44 +104,62 @@ Here is examples.
 
 # for Intel Compiler
 $ ../configure  \
---with-zlib=/usr \
---with-comp=INTEL \
-CXX=icpc \
-CXXFLAGS=-O3 \
-CC=icc \
-CFLAGS=-O3 \
-F90=ifort \
-F90FLAGS=-O3 \
---with-example=yes
+    --with-zlib=/usr \
+    --with-comp=INTEL \
+    --with-lz4=/usr/local \
+    CXX=icpc \
+    CXXFLAGS=-O3 \
+    CC=icc \
+    CFLAGS=-O3 \
+    --with-example=yes
+
+
+# for Intel Compiler /w fortran I/F
+$ ../configure  \
+    --with-zlib=/usr \
+    --with-comp=INTEL \
+    --with-lz4=/usr/local \
+    CXX=icpc \
+    CXXFLAGS=-O3 \
+    CC=icc \
+    CFLAGS=-O3 \
+    --with-example=yes \
+    --with-finterface=yes \
+    --with-f-precision=single \
+    F90=ifort \
+    F90FLAGS=-O3
+
 
 # for GNU Compiler without MPI library
-../configure  \
---with-zlib=/usr \
---with-comp=GNU \
-CXX=g++ \
-CXXFLAGS=-O3 \
-CC=gcc \
-CFLAGS=-O3 \
-F90=gfortran \
-F90FLAGS=-O3 \
-LDFLAGS=-lgfortran \
---with-example=yes
+$ ../configure  \
+    --with-zlib=/usr \
+    --with-comp=GNU \
+    --with-lz4=/usr/local \
+    CXX=g++ \
+    CXXFLAGS=-O3 \
+    CC=gcc \
+    CFLAGS=-O3 \
+    F90=gfortran \
+    F90FLAGS=-O3 \
+    LDFLAGS=-lgfortran \
+    --with-example=yes
 
 
 # for K-computer. cross-compiling
 $ ../configure \
---with-comp=FJ \
---with-example=yes \
---host=sparc64-unknown-linux-gnu \
-CXX=FCCpx \
-CXXFLAGS=-Kfast \
-CC=fccpx \
-CCFLAGS=-Kfast \
-F90=frtpx \
-F90FLAGS=-Kfast
+    --with-comp=FJ \
+    --with-example=yes \
+    --host=sparc64-unknown-linux-gnu \
+    CXX=FCCpx \
+    CXXFLAGS=-Kfast \
+    CC=fccpx \
+    CCFLAGS=-Kfast \
+    F90=frtpx \
+    F90FLAGS=-Kfast
 
 
 2. cmake
+--------
 
 $ cd BUILD_DIR
 $ cmake ../ [options]
