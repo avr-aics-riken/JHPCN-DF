@@ -71,7 +71,7 @@ AC_SUBST(JHPCNDF_REVISION)
 #
 # check for fortran
 #
-AC_ARG_WITH(finterface, [AC_HELP_STRING([--with-finterface=(no|yes)],[make Fortran interface and example code [yes]])], , with_finterface=yes)
+AC_ARG_WITH(finterface, [AC_HELP_STRING([--with-finterface=(no|yes)],[make Fortran interface and example code [no]])], , with_finterface=no)
 
 if test x"$with_finterface" = x"yes" ; then
   #
@@ -112,10 +112,13 @@ fi
 
 AC_ARG_WITH(comp, [AC_HELP_STRING([--with-comp=(INTEL|FJ|GNU)],[Specify Compiler type])], , with_comp=none)
 
+
 #
 # use OpenMP version or not
 #
-AC_ARG_WITH(openmp, [AC_HELP_STRING([--with-openmp=(no|yes)],[use OpenMP[yes]])], , with_openmp=yes)
+AC_ARG_WITH(openmp, [AC_HELP_STRING([--with-openmp=(yes|no)],[use OpenMP[yes]])], , with_openmp=yes)
+
+
 
 #
 # Check Zlib
@@ -142,7 +145,6 @@ if test -e "$with_zlib" ; then
       echo "ZLIB_LDFLAGS="$ZLIB_LDFLAGS
       ;;
   esac
-  echo "ZLIB_LDFLAGS="$ZLIB_LDFLAGS
 else
  AC_MSG_ERROR([not found Zlib DIR : $with_zlib!])
 fi

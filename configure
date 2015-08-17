@@ -1419,12 +1419,12 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-finterface=(no|yes)
-                          make Fortran interface and example code [yes]
+                          make Fortran interface and example code [no]
   --with-f-precision=(single|double)
                           Specify Fortran REAL type [single]
   --with-comp=(INTEL|FJ|GNU)
                           Specify Compiler type
-  --with-openmp=(no|yes)  use OpenMP[yes]
+  --with-openmp=(yes|no)  use OpenMP[yes]
   --with-zlib=DIR         Specify Zlib install directory.
   --with-lz4=DIR          Specify LZ4 install directory.
   --with-example=(no|yes) make example [no]
@@ -3306,7 +3306,7 @@ JHPCNDF_REVISION="20150730_1500"
 if test "${with_finterface+set}" = set; then :
   withval=$with_finterface;
 else
-  with_finterface=yes
+  with_finterface=no
 fi
 
 
@@ -3363,6 +3363,7 @@ else
 fi
 
 
+
 #
 # use OpenMP version or not
 #
@@ -3373,6 +3374,8 @@ if test "${with_openmp+set}" = set; then :
 else
   with_openmp=yes
 fi
+
+
 
 
 #
@@ -3406,7 +3409,6 @@ if test -e "$with_zlib" ; then
       echo "ZLIB_LDFLAGS="$ZLIB_LDFLAGS
       ;;
   esac
-  echo "ZLIB_LDFLAGS="$ZLIB_LDFLAGS
 else
  as_fn_error $? "not found Zlib DIR : $with_zlib!" "$LINENO" 5
 fi
