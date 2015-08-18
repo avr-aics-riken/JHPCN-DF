@@ -31,7 +31,7 @@
 #    JHPCN-DFライブラリをwith_OpenMP=yesでビルドした場合は必須
 
 cmake_minimum_required(VERSION 2.6)
-option(with_Fortran_interface   "enable Fortran interface" ON)
+option(with_Fortran_interface   "enable Fortran interface" OFF)
 option(REAL_8_BYTE "build sample code for double" OFF)
 option(with_OpenMP "enable OpenMP directives" ON)
 
