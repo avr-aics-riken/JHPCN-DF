@@ -38,7 +38,7 @@
 cmake_minimum_required(VERSION 2.8.10)
 
 #ビルドオプション設定
-option(with_Fortran_interface   "enable Fortran interface" ON)
+option(with_Fortran_interface "enable Fortran interface" OFF)
 option(build_unit_tests       "build test program" OFF)
 option(build_performance_test "build performance test program" OFF)
 option(with_sse               "use sse instructions" ON)
