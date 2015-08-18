@@ -9,6 +9,12 @@
  
  REVISION HISTORY
 ================
+
+------------------
+2015-08-18
+- update packaging
+- turn-off default fortran API
+
 ------------------
 2015-08-14
 - packaging, add configure options
