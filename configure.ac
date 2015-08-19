@@ -11,13 +11,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.57])
-AC_INIT([JHPCN-DF], [1.0.0], [keno@riken.jp], [JHPCN-DF])
+AC_INIT([JHPCN-DF], [1.0.1], [keno@riken.jp], [JHPCN-DF])
 
 echo "----------------------------------------"
 echo "Running JHPCN-DF Configure Script"
 echo "----------------------------------------"
 
-AC_CONFIG_SRCDIR([src/FileInfoManager.h])
+AC_CONFIG_SRCDIR([src/Interface.cpp])
 
 
 #
@@ -65,7 +65,7 @@ AM_INIT_AUTOMAKE()
 # revision No.
 #
 
-JHPCNDF_REVISION="20150730_1500"
+JHPCNDF_REVISION="20150819_1600"
 AC_SUBST(JHPCNDF_REVISION)
 
 #
@@ -118,6 +118,10 @@ AC_ARG_WITH(comp, [AC_HELP_STRING([--with-comp=(INTEL|FJ|GNU)],[Specify Compiler
 #
 AC_ARG_WITH(openmp, [AC_HELP_STRING([--with-openmp=(yes|no)],[use OpenMP[yes]])], , with_openmp=yes)
 
+#
+# use sse option or not
+#
+AC_ARG_WITH(sse, [AC_HELP_STRING([--with-sse=(yes|no)],[use SSE instructions[yes]])], , with_sse=yes)
 
 
 #
@@ -165,23 +169,24 @@ AC_SUBST(LZ4_DIR)
 AC_SUBST(LZ4_FLAGS)
 AC_SUBST(LZ4_LDFLAGS)
 AC_SUBST(LZ4_LIBS)
-AC_ARG_WITH(lz4, AS_HELP_STRING( [--with-lz4=DIR], [Specify LZ4 install directory.] ), ,
-            AC_MSG_ERROR([LZ4 is required in configure option (--with-lz4)!]) )
-if test -e "$with_lz4" ; then
-  LZ4_DIR=$with_lz4;
-  LZ4_FLAGS=" -I$LZ4_DIR/include -DUSE_LZ4"
-  case $target in
-    *apple-darwin* )
+AC_ARG_WITH(lz4, AS_HELP_STRING( [--with-lz4=DIR], [Specify LZ4 install directory.] ), , with_lz4=no)
+if test x"$with_lz4" != x"no" ; then
+  if test -e "$with_lz4" ; then
+    LZ4_DIR=$with_lz4;
+    LZ4_FLAGS=" -I$LZ4_DIR/include -DUSE_LZ4"
+    case $target in
+      *apple-darwin* )
       LZ4_LDFLAGS=""
       LZ4_LIBS=$LZ4_DIR/lib/liblz4.dylib
       ;;
-    *)
+      *)
       LZ4_LDFLAGS=-L$LZ4_DIR/lib
       LZ4_LIBS="-llz4"
       ;;
-  esac
-else
- AC_MSG_ERROR([not found LZ4 DIR : $with_lz4!])
+    esac
+  else
+    AC_MSG_ERROR([not found lz4 DIR : $with_lz4!])
+  fi
 fi
 
 
@@ -200,8 +205,11 @@ LDFLAGS="$LDFLAGS $LZ4_LDFLAGS"
 #
 AC_ARG_WITH(example, [AC_HELP_STRING([--with-example=(no|yes)],[make example [no]])], , with_example=no)
 
-# EXAMPLE_TARGET = true, if compile example
-AM_CONDITIONAL([EXAMPLE_TARGET], [test "$with_example" = "yes"])
+#
+# test
+#
+AC_ARG_WITH(tests, [AC_HELP_STRING([--with-tests=(no|yes)],[make tests [no]])], , with_tests=no)
+
 
 #
 # JHPCNDF special flags
@@ -244,10 +252,8 @@ elif test x"$with_comp" = x"INTEL" ; then
 elif test x"$with_comp" = x"GNU" ; then
   JHPCNDF_LIBS="$JHPCNDF_LIBS -lstdc++"
   ADDITIONAL_LIBS=" -lstdc++"
-  CXXFLAGS="$CXXFLAGS -std=c++11"
 fi
 AC_SUBST(ADDITIONAL_LIBS)
-
 
 if test x"$with_openmp" = x"yes" ; then
   if test x"$with_comp" = x"FJ"; then
@@ -265,6 +271,23 @@ if test x"$with_openmp" = x"yes" ; then
   fi
 fi
 
+if test x"$with_sse" = x"yes" ; then
+  if test x"$with_comp" = x"FJ"; then
+    CXXFLAGS="$CXXFLAGS -Kfast"
+  elif test x"$with_comp" = x"INTEL" ; then
+    CXXFLAGS="$CXXFLAGS -xHost"
+  elif test x"$with_comp" = x"GNU" ; then
+    case $target in
+      *apple-darwin* )
+      CXXFLAGS="$CXXFLAGS -march=SSE3"
+      ;;
+      *)
+      CXXFLAGS="$CXXFLAGS -march=native"
+      ;;
+    esac
+  fi
+fi
+
 #
 # MAKE_SUB_DIRS
 #
@@ -277,6 +300,10 @@ if test x"$with_example" = x"yes" ; then
   if test x"$with_finterface" = x"yes" ; then
     MAKE_SUB_DIRS="$MAKE_SUB_DIRS examples/Fortran"
   fi
+fi
+if test x"$with_tests" = x"yes" ; then
+  MAKE_SUB_DIRS="$MAKE_SUB_DIRS tests/PerformanceTest tests/UnitTest"
+  CXXFLAGS="$CXXFLAGS -DGTEST_HAS_PTHREAD=0"
 fi
 
 
@@ -349,6 +376,8 @@ AC_CONFIG_FILES([Makefile \
                  examples/C++/Makefile \
                  examples/C/Makefile \
                  examples/Fortran/Makefile \
+                 tests/PerformanceTest/Makefile \
+                 tests/UnitTest/Makefile \
                  ])
 
 AC_OUTPUT

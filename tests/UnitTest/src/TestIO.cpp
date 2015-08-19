@@ -12,7 +12,7 @@
 #include "gtest/gtest.h"
 #include "IO.h"
 
-class IOTest : public ::testing::TestWithParam<std::tuple <const char*, size_t> >
+class IOTest : public ::testing::TestWithParam<std::tr1::tuple <const char*, size_t> >
 {
   protected:
     IOTest():size(1),random_data(NULL), read_data(NULL){}
@@ -26,13 +26,13 @@ class IOTest : public ::testing::TestWithParam<std::tuple <const char*, size_t> 
     }
     virtual void SetUp()
     {
-      nmemb=std::get<1>(GetParam());
+      nmemb=std::tr1::get<1>(GetParam());
       random_data=new char [nmemb];
       read_data=new char [nmemb];
 
       std::ostringstream oss;
       oss<<nmemb;
-      std::string filename(std::get<0>(GetParam()));
+      std::string filename(std::tr1::get<0>(GetParam()));
       filename += "_";
       filename +=oss.str()+".gz";
 
@@ -56,7 +56,7 @@ TEST_P(IOTest, WriteAndRead)
   ASSERT_TRUE(random_data != NULL);
   ASSERT_TRUE(read_data != NULL);
   init_data(nmemb);
-  JHPCNDF::IO* io = JHPCNDF::IOFactory(std::get<0>(GetParam()), 32768);
+  JHPCNDF::IO* io = JHPCNDF::IOFactory(std::tr1::get<0>(GetParam()), 32768);
   ASSERT_TRUE(io != NULL);
 
   size_t write_size = io->fwrite(random_data, size, nmemb, fp);

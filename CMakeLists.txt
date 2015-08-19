@@ -27,13 +27,16 @@
 #    PerformanceTestおよびDumpToolをビルドする(デフォルトno)
 #
 # -Dwith_sse={yes|no}
-#    SSE命令を生成するオプションを指定する。(デフォルトyes)
+#    SSE命令を生成するオプションを指定する。(デフォルト yes)
 #
 # -Dwith_OpenMP={yes|no}
-#    OpenMPによる並列化を行う (デフォルトyes)
+#    OpenMPによる並列化を行う (デフォルト yes)
 #
 # -Dwith_Fortran_interface={yes|no}
-#    Fortran用インタフェースルーチンをビルドする (デフォルトyes)
+#    Fortran用インタフェースルーチンをビルドする (デフォルト no)
+#
+# -Dwith_lz4={yes|no}
+#    LZ4ライブラリによる圧縮機能を有効にする (デフォルト no)
 
 cmake_minimum_required(VERSION 2.8.10)
 
@@ -43,7 +46,12 @@ option(build_unit_tests       "build test program" OFF)
 option(build_performance_test "build performance test program" OFF)
 option(with_sse               "use sse instructions" ON)
 option(with_OpenMP            "enable OpenMP directives" ON)
-option(use_lz4                "enable lz4" OFF)
+option(with_lz4               "enable lz4" OFF)
+
+# for backword compatibility
+if(use_lz4)
+  set(with_lz4 ${use_lz4})
+endif()
 
 
 if(with_Fortran_interface)
@@ -98,7 +106,7 @@ else()
 endif()
 
 #lz4
-if(use_lz4)
+if(with_lz4)
   find_package(LZ4 REQUIRED)
   ADD_DEFINITIONS(-DUSE_LZ4)
 endif()
