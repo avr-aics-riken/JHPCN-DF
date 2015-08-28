@@ -11,6 +11,11 @@
 ================
 
 ------------------
+2015-08-28
+- bug fix in Unit Test
+- support --with-sse and --with-test configure option
+
+------------------
 2015-08-18
 - update packaging
 - turn-off default fortran API
