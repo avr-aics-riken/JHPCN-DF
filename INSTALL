@@ -72,6 +72,12 @@ Configure options:
 --with-openmp=(yes|no)
    Enable OpenMP directives. The default is yes.
 
+--with-sse=(yes|no)
+   Enable to issue SSE instructions. The default is yes.
+
+--with-tests=(no|yes)
+   Specify building tests. The default is no.
+
 --with-zlib=DIR
    Specify installed directory of Zlib.
 
@@ -114,7 +120,7 @@ $ ../configure  \
     --with-example=yes
 
 
-# for Intel Compiler /w fortran I/F
+# for Intel Compiler, /w fortran I/F, /w tests
 $ ../configure  \
     --with-zlib=/usr \
     --with-comp=INTEL \
@@ -127,7 +133,8 @@ $ ../configure  \
     --with-finterface=yes \
     --with-f-precision=single \
     F90=ifort \
-    F90FLAGS=-O3
+    F90FLAGS=-O3 \
+    --with-tests=yes
 
 
 # for GNU Compiler without MPI library

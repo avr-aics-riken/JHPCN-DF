@@ -8,6 +8,8 @@
 # 
 ##############################################################################
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 noinst_PROGRAMS=UnitTest
 UnitTest_SOURCES  = gtest/gtest_main.cc \
 					gtest/gtest-all.cc \

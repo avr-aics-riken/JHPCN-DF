@@ -115,12 +115,12 @@ CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
 am_f_file_io_OBJECTS = f_file_io-read_and_write.$(OBJEXT)
 f_file_io_OBJECTS = $(am_f_file_io_OBJECTS)
-f_file_io_DEPENDENCIES = ../../src/libJHPCNDF.a
+f_file_io_DEPENDENCIES =
 f_file_io_LINK = $(FCLD) $(f_file_io_FCFLAGS) $(FCFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am_f_in_memory_OBJECTS = f_in_memory-encode_and_decode.$(OBJEXT)
 f_in_memory_OBJECTS = $(am_f_in_memory_OBJECTS)
-f_in_memory_DEPENDENCIES = ../../src/libJHPCNDF.a
+f_in_memory_DEPENDENCIES =
 f_in_memory_LINK = $(FCLD) $(f_in_memory_FCFLAGS) $(FCFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -315,10 +315,12 @@ CLEANFILES = data/*.log
 EXTRA_DIST = 
 f_in_memory_SOURCES = encode_and_decode.f90
 f_in_memory_FCFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src @ZLIB_FLAGS@ @LZ4_FLAGS@
-f_in_memory_LDADD = ../../src/libJHPCNDF.a  @ADDITIONAL_LIBS@ @ZLIB_LIBS@ @LZ4_LIBS@
+#f_in_memory_LDADD = ../../src/libJHPCNDF.a  @ADDITIONAL_LIBS@ @ZLIB_LIBS@ @LZ4_LIBS@
+f_in_memory_LDADD = -L$(top_builddir)/src -lJHPCNDF @ADDITIONAL_LIBS@ @ZLIB_LIBS@ @LZ4_LIBS@
 f_file_io_SOURCES = read_and_write.f90
 f_file_io_FCFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src @ZLIB_FLAGS@  @LZ4_FLAGS@
-f_file_io_LDADD = ../../src/libJHPCNDF.a  @ADDITIONAL_LIBS@ @ZLIB_LIBS@ @LZ4_LIBS@
+#f_file_io_LDADD = ../../src/libJHPCNDF.a  @ADDITIONAL_LIBS@ @ZLIB_LIBS@ @LZ4_LIBS@
+f_file_io_LDADD = -L$(top_builddir)/src -lJHPCNDF  @ADDITIONAL_LIBS@ @ZLIB_LIBS@ @LZ4_LIBS@
 dist_noinst_DATA = 
 all: all-am
 

@@ -111,12 +111,14 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_UnitTest_OBJECTS = UnitTest-gtest_main.$(OBJEXT) \
-	UnitTest-gtest-all.$(OBJEXT) UnitTest-TestXOR.$(OBJEXT) \
-	UnitTest-TestOR.$(OBJEXT) UnitTest-TestAND.$(OBJEXT) \
-	UnitTest-TestZeroPadding.$(OBJEXT) \
-	UnitTest-TestFileInfoManager.$(OBJEXT) \
-	UnitTest-TestIO.$(OBJEXT)
+am__dirstamp = $(am__leading_dot)dirstamp
+am_UnitTest_OBJECTS = gtest/UnitTest-gtest_main.$(OBJEXT) \
+	gtest/UnitTest-gtest-all.$(OBJEXT) \
+	src/UnitTest-TestXOR.$(OBJEXT) src/UnitTest-TestOR.$(OBJEXT) \
+	src/UnitTest-TestAND.$(OBJEXT) \
+	src/UnitTest-TestZeroPadding.$(OBJEXT) \
+	src/UnitTest-TestFileInfoManager.$(OBJEXT) \
+	src/UnitTest-TestIO.$(OBJEXT)
 UnitTest_OBJECTS = $(am_UnitTest_OBJECTS)
 UnitTest_DEPENDENCIES = ../../src/libJHPCNDF.a
 UnitTest_LINK = $(CXXLD) $(UnitTest_CXXFLAGS) $(CXXFLAGS) \
@@ -311,6 +313,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AUTOMAKE_OPTIONS = subdir-objects
 UnitTest_SOURCES = gtest/gtest_main.cc \
 					gtest/gtest-all.cc \
 					src/TestXOR.cpp \
@@ -358,6 +361,34 @@ $(am__aclocal_m4_deps):
 
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+gtest/$(am__dirstamp):
+	@$(MKDIR_P) gtest
+	@: > gtest/$(am__dirstamp)
+gtest/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) gtest/$(DEPDIR)
+	@: > gtest/$(DEPDIR)/$(am__dirstamp)
+gtest/UnitTest-gtest_main.$(OBJEXT): gtest/$(am__dirstamp) \
+	gtest/$(DEPDIR)/$(am__dirstamp)
+gtest/UnitTest-gtest-all.$(OBJEXT): gtest/$(am__dirstamp) \
+	gtest/$(DEPDIR)/$(am__dirstamp)
+src/$(am__dirstamp):
+	@$(MKDIR_P) src
+	@: > src/$(am__dirstamp)
+src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/$(DEPDIR)
+	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/UnitTest-TestXOR.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/UnitTest-TestOR.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/UnitTest-TestAND.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/UnitTest-TestZeroPadding.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/UnitTest-TestFileInfoManager.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/UnitTest-TestIO.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 
 UnitTest$(EXEEXT): $(UnitTest_OBJECTS) $(UnitTest_DEPENDENCIES) $(EXTRA_UnitTest_DEPENDENCIES) 
 	@rm -f UnitTest$(EXEEXT)
@@ -365,155 +396,161 @@ UnitTest$(EXEEXT): $(UnitTest_OBJECTS) $(UnitTest_DEPENDENCIES) $(EXTRA_UnitTest
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f gtest/*.$(OBJEXT)
+	-rm -f src/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-TestAND.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-TestFileInfoManager.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-TestIO.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-TestOR.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-TestXOR.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-TestZeroPadding.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-gtest-all.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UnitTest-gtest_main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gtest/$(DEPDIR)/UnitTest-gtest-all.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@gtest/$(DEPDIR)/UnitTest-gtest_main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/UnitTest-TestAND.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/UnitTest-TestFileInfoManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/UnitTest-TestIO.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/UnitTest-TestOR.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/UnitTest-TestXOR.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/UnitTest-TestZeroPadding.Po@am__quote@
 
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-UnitTest-gtest_main.o: gtest/gtest_main.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-gtest_main.o -MD -MP -MF $(DEPDIR)/UnitTest-gtest_main.Tpo -c -o UnitTest-gtest_main.o `test -f 'gtest/gtest_main.cc' || echo '$(srcdir)/'`gtest/gtest_main.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-gtest_main.Tpo $(DEPDIR)/UnitTest-gtest_main.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest_main.cc' object='UnitTest-gtest_main.o' libtool=no @AMDEPBACKSLASH@
+gtest/UnitTest-gtest_main.o: gtest/gtest_main.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT gtest/UnitTest-gtest_main.o -MD -MP -MF gtest/$(DEPDIR)/UnitTest-gtest_main.Tpo -c -o gtest/UnitTest-gtest_main.o `test -f 'gtest/gtest_main.cc' || echo '$(srcdir)/'`gtest/gtest_main.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) gtest/$(DEPDIR)/UnitTest-gtest_main.Tpo gtest/$(DEPDIR)/UnitTest-gtest_main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest_main.cc' object='gtest/UnitTest-gtest_main.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-gtest_main.o `test -f 'gtest/gtest_main.cc' || echo '$(srcdir)/'`gtest/gtest_main.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o gtest/UnitTest-gtest_main.o `test -f 'gtest/gtest_main.cc' || echo '$(srcdir)/'`gtest/gtest_main.cc
 
-UnitTest-gtest_main.obj: gtest/gtest_main.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-gtest_main.obj -MD -MP -MF $(DEPDIR)/UnitTest-gtest_main.Tpo -c -o UnitTest-gtest_main.obj `if test -f 'gtest/gtest_main.cc'; then $(CYGPATH_W) 'gtest/gtest_main.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest_main.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-gtest_main.Tpo $(DEPDIR)/UnitTest-gtest_main.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest_main.cc' object='UnitTest-gtest_main.obj' libtool=no @AMDEPBACKSLASH@
+gtest/UnitTest-gtest_main.obj: gtest/gtest_main.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT gtest/UnitTest-gtest_main.obj -MD -MP -MF gtest/$(DEPDIR)/UnitTest-gtest_main.Tpo -c -o gtest/UnitTest-gtest_main.obj `if test -f 'gtest/gtest_main.cc'; then $(CYGPATH_W) 'gtest/gtest_main.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest_main.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) gtest/$(DEPDIR)/UnitTest-gtest_main.Tpo gtest/$(DEPDIR)/UnitTest-gtest_main.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest_main.cc' object='gtest/UnitTest-gtest_main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-gtest_main.obj `if test -f 'gtest/gtest_main.cc'; then $(CYGPATH_W) 'gtest/gtest_main.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest_main.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o gtest/UnitTest-gtest_main.obj `if test -f 'gtest/gtest_main.cc'; then $(CYGPATH_W) 'gtest/gtest_main.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest_main.cc'; fi`
 
-UnitTest-gtest-all.o: gtest/gtest-all.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-gtest-all.o -MD -MP -MF $(DEPDIR)/UnitTest-gtest-all.Tpo -c -o UnitTest-gtest-all.o `test -f 'gtest/gtest-all.cc' || echo '$(srcdir)/'`gtest/gtest-all.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-gtest-all.Tpo $(DEPDIR)/UnitTest-gtest-all.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest-all.cc' object='UnitTest-gtest-all.o' libtool=no @AMDEPBACKSLASH@
+gtest/UnitTest-gtest-all.o: gtest/gtest-all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT gtest/UnitTest-gtest-all.o -MD -MP -MF gtest/$(DEPDIR)/UnitTest-gtest-all.Tpo -c -o gtest/UnitTest-gtest-all.o `test -f 'gtest/gtest-all.cc' || echo '$(srcdir)/'`gtest/gtest-all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) gtest/$(DEPDIR)/UnitTest-gtest-all.Tpo gtest/$(DEPDIR)/UnitTest-gtest-all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest-all.cc' object='gtest/UnitTest-gtest-all.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-gtest-all.o `test -f 'gtest/gtest-all.cc' || echo '$(srcdir)/'`gtest/gtest-all.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o gtest/UnitTest-gtest-all.o `test -f 'gtest/gtest-all.cc' || echo '$(srcdir)/'`gtest/gtest-all.cc
 
-UnitTest-gtest-all.obj: gtest/gtest-all.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-gtest-all.obj -MD -MP -MF $(DEPDIR)/UnitTest-gtest-all.Tpo -c -o UnitTest-gtest-all.obj `if test -f 'gtest/gtest-all.cc'; then $(CYGPATH_W) 'gtest/gtest-all.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest-all.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-gtest-all.Tpo $(DEPDIR)/UnitTest-gtest-all.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest-all.cc' object='UnitTest-gtest-all.obj' libtool=no @AMDEPBACKSLASH@
+gtest/UnitTest-gtest-all.obj: gtest/gtest-all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT gtest/UnitTest-gtest-all.obj -MD -MP -MF gtest/$(DEPDIR)/UnitTest-gtest-all.Tpo -c -o gtest/UnitTest-gtest-all.obj `if test -f 'gtest/gtest-all.cc'; then $(CYGPATH_W) 'gtest/gtest-all.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest-all.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) gtest/$(DEPDIR)/UnitTest-gtest-all.Tpo gtest/$(DEPDIR)/UnitTest-gtest-all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='gtest/gtest-all.cc' object='gtest/UnitTest-gtest-all.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-gtest-all.obj `if test -f 'gtest/gtest-all.cc'; then $(CYGPATH_W) 'gtest/gtest-all.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest-all.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o gtest/UnitTest-gtest-all.obj `if test -f 'gtest/gtest-all.cc'; then $(CYGPATH_W) 'gtest/gtest-all.cc'; else $(CYGPATH_W) '$(srcdir)/gtest/gtest-all.cc'; fi`
 
-UnitTest-TestXOR.o: src/TestXOR.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestXOR.o -MD -MP -MF $(DEPDIR)/UnitTest-TestXOR.Tpo -c -o UnitTest-TestXOR.o `test -f 'src/TestXOR.cpp' || echo '$(srcdir)/'`src/TestXOR.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestXOR.Tpo $(DEPDIR)/UnitTest-TestXOR.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestXOR.cpp' object='UnitTest-TestXOR.o' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestXOR.o: src/TestXOR.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestXOR.o -MD -MP -MF src/$(DEPDIR)/UnitTest-TestXOR.Tpo -c -o src/UnitTest-TestXOR.o `test -f 'src/TestXOR.cpp' || echo '$(srcdir)/'`src/TestXOR.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestXOR.Tpo src/$(DEPDIR)/UnitTest-TestXOR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestXOR.cpp' object='src/UnitTest-TestXOR.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestXOR.o `test -f 'src/TestXOR.cpp' || echo '$(srcdir)/'`src/TestXOR.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestXOR.o `test -f 'src/TestXOR.cpp' || echo '$(srcdir)/'`src/TestXOR.cpp
 
-UnitTest-TestXOR.obj: src/TestXOR.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestXOR.obj -MD -MP -MF $(DEPDIR)/UnitTest-TestXOR.Tpo -c -o UnitTest-TestXOR.obj `if test -f 'src/TestXOR.cpp'; then $(CYGPATH_W) 'src/TestXOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestXOR.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestXOR.Tpo $(DEPDIR)/UnitTest-TestXOR.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestXOR.cpp' object='UnitTest-TestXOR.obj' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestXOR.obj: src/TestXOR.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestXOR.obj -MD -MP -MF src/$(DEPDIR)/UnitTest-TestXOR.Tpo -c -o src/UnitTest-TestXOR.obj `if test -f 'src/TestXOR.cpp'; then $(CYGPATH_W) 'src/TestXOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestXOR.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestXOR.Tpo src/$(DEPDIR)/UnitTest-TestXOR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestXOR.cpp' object='src/UnitTest-TestXOR.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestXOR.obj `if test -f 'src/TestXOR.cpp'; then $(CYGPATH_W) 'src/TestXOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestXOR.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestXOR.obj `if test -f 'src/TestXOR.cpp'; then $(CYGPATH_W) 'src/TestXOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestXOR.cpp'; fi`
 
-UnitTest-TestOR.o: src/TestOR.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestOR.o -MD -MP -MF $(DEPDIR)/UnitTest-TestOR.Tpo -c -o UnitTest-TestOR.o `test -f 'src/TestOR.cpp' || echo '$(srcdir)/'`src/TestOR.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestOR.Tpo $(DEPDIR)/UnitTest-TestOR.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestOR.cpp' object='UnitTest-TestOR.o' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestOR.o: src/TestOR.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestOR.o -MD -MP -MF src/$(DEPDIR)/UnitTest-TestOR.Tpo -c -o src/UnitTest-TestOR.o `test -f 'src/TestOR.cpp' || echo '$(srcdir)/'`src/TestOR.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestOR.Tpo src/$(DEPDIR)/UnitTest-TestOR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestOR.cpp' object='src/UnitTest-TestOR.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestOR.o `test -f 'src/TestOR.cpp' || echo '$(srcdir)/'`src/TestOR.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestOR.o `test -f 'src/TestOR.cpp' || echo '$(srcdir)/'`src/TestOR.cpp
 
-UnitTest-TestOR.obj: src/TestOR.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestOR.obj -MD -MP -MF $(DEPDIR)/UnitTest-TestOR.Tpo -c -o UnitTest-TestOR.obj `if test -f 'src/TestOR.cpp'; then $(CYGPATH_W) 'src/TestOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestOR.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestOR.Tpo $(DEPDIR)/UnitTest-TestOR.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestOR.cpp' object='UnitTest-TestOR.obj' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestOR.obj: src/TestOR.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestOR.obj -MD -MP -MF src/$(DEPDIR)/UnitTest-TestOR.Tpo -c -o src/UnitTest-TestOR.obj `if test -f 'src/TestOR.cpp'; then $(CYGPATH_W) 'src/TestOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestOR.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestOR.Tpo src/$(DEPDIR)/UnitTest-TestOR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestOR.cpp' object='src/UnitTest-TestOR.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestOR.obj `if test -f 'src/TestOR.cpp'; then $(CYGPATH_W) 'src/TestOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestOR.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestOR.obj `if test -f 'src/TestOR.cpp'; then $(CYGPATH_W) 'src/TestOR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestOR.cpp'; fi`
 
-UnitTest-TestAND.o: src/TestAND.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestAND.o -MD -MP -MF $(DEPDIR)/UnitTest-TestAND.Tpo -c -o UnitTest-TestAND.o `test -f 'src/TestAND.cpp' || echo '$(srcdir)/'`src/TestAND.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestAND.Tpo $(DEPDIR)/UnitTest-TestAND.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestAND.cpp' object='UnitTest-TestAND.o' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestAND.o: src/TestAND.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestAND.o -MD -MP -MF src/$(DEPDIR)/UnitTest-TestAND.Tpo -c -o src/UnitTest-TestAND.o `test -f 'src/TestAND.cpp' || echo '$(srcdir)/'`src/TestAND.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestAND.Tpo src/$(DEPDIR)/UnitTest-TestAND.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestAND.cpp' object='src/UnitTest-TestAND.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestAND.o `test -f 'src/TestAND.cpp' || echo '$(srcdir)/'`src/TestAND.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestAND.o `test -f 'src/TestAND.cpp' || echo '$(srcdir)/'`src/TestAND.cpp
 
-UnitTest-TestAND.obj: src/TestAND.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestAND.obj -MD -MP -MF $(DEPDIR)/UnitTest-TestAND.Tpo -c -o UnitTest-TestAND.obj `if test -f 'src/TestAND.cpp'; then $(CYGPATH_W) 'src/TestAND.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestAND.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestAND.Tpo $(DEPDIR)/UnitTest-TestAND.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestAND.cpp' object='UnitTest-TestAND.obj' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestAND.obj: src/TestAND.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestAND.obj -MD -MP -MF src/$(DEPDIR)/UnitTest-TestAND.Tpo -c -o src/UnitTest-TestAND.obj `if test -f 'src/TestAND.cpp'; then $(CYGPATH_W) 'src/TestAND.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestAND.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestAND.Tpo src/$(DEPDIR)/UnitTest-TestAND.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestAND.cpp' object='src/UnitTest-TestAND.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestAND.obj `if test -f 'src/TestAND.cpp'; then $(CYGPATH_W) 'src/TestAND.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestAND.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestAND.obj `if test -f 'src/TestAND.cpp'; then $(CYGPATH_W) 'src/TestAND.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestAND.cpp'; fi`
 
-UnitTest-TestZeroPadding.o: src/TestZeroPadding.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestZeroPadding.o -MD -MP -MF $(DEPDIR)/UnitTest-TestZeroPadding.Tpo -c -o UnitTest-TestZeroPadding.o `test -f 'src/TestZeroPadding.cpp' || echo '$(srcdir)/'`src/TestZeroPadding.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestZeroPadding.Tpo $(DEPDIR)/UnitTest-TestZeroPadding.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestZeroPadding.cpp' object='UnitTest-TestZeroPadding.o' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestZeroPadding.o: src/TestZeroPadding.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestZeroPadding.o -MD -MP -MF src/$(DEPDIR)/UnitTest-TestZeroPadding.Tpo -c -o src/UnitTest-TestZeroPadding.o `test -f 'src/TestZeroPadding.cpp' || echo '$(srcdir)/'`src/TestZeroPadding.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestZeroPadding.Tpo src/$(DEPDIR)/UnitTest-TestZeroPadding.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestZeroPadding.cpp' object='src/UnitTest-TestZeroPadding.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestZeroPadding.o `test -f 'src/TestZeroPadding.cpp' || echo '$(srcdir)/'`src/TestZeroPadding.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestZeroPadding.o `test -f 'src/TestZeroPadding.cpp' || echo '$(srcdir)/'`src/TestZeroPadding.cpp
 
-UnitTest-TestZeroPadding.obj: src/TestZeroPadding.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestZeroPadding.obj -MD -MP -MF $(DEPDIR)/UnitTest-TestZeroPadding.Tpo -c -o UnitTest-TestZeroPadding.obj `if test -f 'src/TestZeroPadding.cpp'; then $(CYGPATH_W) 'src/TestZeroPadding.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestZeroPadding.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestZeroPadding.Tpo $(DEPDIR)/UnitTest-TestZeroPadding.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestZeroPadding.cpp' object='UnitTest-TestZeroPadding.obj' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestZeroPadding.obj: src/TestZeroPadding.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestZeroPadding.obj -MD -MP -MF src/$(DEPDIR)/UnitTest-TestZeroPadding.Tpo -c -o src/UnitTest-TestZeroPadding.obj `if test -f 'src/TestZeroPadding.cpp'; then $(CYGPATH_W) 'src/TestZeroPadding.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestZeroPadding.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestZeroPadding.Tpo src/$(DEPDIR)/UnitTest-TestZeroPadding.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestZeroPadding.cpp' object='src/UnitTest-TestZeroPadding.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestZeroPadding.obj `if test -f 'src/TestZeroPadding.cpp'; then $(CYGPATH_W) 'src/TestZeroPadding.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestZeroPadding.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestZeroPadding.obj `if test -f 'src/TestZeroPadding.cpp'; then $(CYGPATH_W) 'src/TestZeroPadding.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestZeroPadding.cpp'; fi`
 
-UnitTest-TestFileInfoManager.o: src/TestFileInfoManager.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestFileInfoManager.o -MD -MP -MF $(DEPDIR)/UnitTest-TestFileInfoManager.Tpo -c -o UnitTest-TestFileInfoManager.o `test -f 'src/TestFileInfoManager.cpp' || echo '$(srcdir)/'`src/TestFileInfoManager.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestFileInfoManager.Tpo $(DEPDIR)/UnitTest-TestFileInfoManager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestFileInfoManager.cpp' object='UnitTest-TestFileInfoManager.o' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestFileInfoManager.o: src/TestFileInfoManager.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestFileInfoManager.o -MD -MP -MF src/$(DEPDIR)/UnitTest-TestFileInfoManager.Tpo -c -o src/UnitTest-TestFileInfoManager.o `test -f 'src/TestFileInfoManager.cpp' || echo '$(srcdir)/'`src/TestFileInfoManager.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestFileInfoManager.Tpo src/$(DEPDIR)/UnitTest-TestFileInfoManager.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestFileInfoManager.cpp' object='src/UnitTest-TestFileInfoManager.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestFileInfoManager.o `test -f 'src/TestFileInfoManager.cpp' || echo '$(srcdir)/'`src/TestFileInfoManager.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestFileInfoManager.o `test -f 'src/TestFileInfoManager.cpp' || echo '$(srcdir)/'`src/TestFileInfoManager.cpp
 
-UnitTest-TestFileInfoManager.obj: src/TestFileInfoManager.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestFileInfoManager.obj -MD -MP -MF $(DEPDIR)/UnitTest-TestFileInfoManager.Tpo -c -o UnitTest-TestFileInfoManager.obj `if test -f 'src/TestFileInfoManager.cpp'; then $(CYGPATH_W) 'src/TestFileInfoManager.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestFileInfoManager.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestFileInfoManager.Tpo $(DEPDIR)/UnitTest-TestFileInfoManager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestFileInfoManager.cpp' object='UnitTest-TestFileInfoManager.obj' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestFileInfoManager.obj: src/TestFileInfoManager.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestFileInfoManager.obj -MD -MP -MF src/$(DEPDIR)/UnitTest-TestFileInfoManager.Tpo -c -o src/UnitTest-TestFileInfoManager.obj `if test -f 'src/TestFileInfoManager.cpp'; then $(CYGPATH_W) 'src/TestFileInfoManager.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestFileInfoManager.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestFileInfoManager.Tpo src/$(DEPDIR)/UnitTest-TestFileInfoManager.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestFileInfoManager.cpp' object='src/UnitTest-TestFileInfoManager.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestFileInfoManager.obj `if test -f 'src/TestFileInfoManager.cpp'; then $(CYGPATH_W) 'src/TestFileInfoManager.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestFileInfoManager.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestFileInfoManager.obj `if test -f 'src/TestFileInfoManager.cpp'; then $(CYGPATH_W) 'src/TestFileInfoManager.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestFileInfoManager.cpp'; fi`
 
-UnitTest-TestIO.o: src/TestIO.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestIO.o -MD -MP -MF $(DEPDIR)/UnitTest-TestIO.Tpo -c -o UnitTest-TestIO.o `test -f 'src/TestIO.cpp' || echo '$(srcdir)/'`src/TestIO.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestIO.Tpo $(DEPDIR)/UnitTest-TestIO.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestIO.cpp' object='UnitTest-TestIO.o' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestIO.o: src/TestIO.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestIO.o -MD -MP -MF src/$(DEPDIR)/UnitTest-TestIO.Tpo -c -o src/UnitTest-TestIO.o `test -f 'src/TestIO.cpp' || echo '$(srcdir)/'`src/TestIO.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestIO.Tpo src/$(DEPDIR)/UnitTest-TestIO.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestIO.cpp' object='src/UnitTest-TestIO.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestIO.o `test -f 'src/TestIO.cpp' || echo '$(srcdir)/'`src/TestIO.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestIO.o `test -f 'src/TestIO.cpp' || echo '$(srcdir)/'`src/TestIO.cpp
 
-UnitTest-TestIO.obj: src/TestIO.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT UnitTest-TestIO.obj -MD -MP -MF $(DEPDIR)/UnitTest-TestIO.Tpo -c -o UnitTest-TestIO.obj `if test -f 'src/TestIO.cpp'; then $(CYGPATH_W) 'src/TestIO.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestIO.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/UnitTest-TestIO.Tpo $(DEPDIR)/UnitTest-TestIO.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestIO.cpp' object='UnitTest-TestIO.obj' libtool=no @AMDEPBACKSLASH@
+src/UnitTest-TestIO.obj: src/TestIO.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -MT src/UnitTest-TestIO.obj -MD -MP -MF src/$(DEPDIR)/UnitTest-TestIO.Tpo -c -o src/UnitTest-TestIO.obj `if test -f 'src/TestIO.cpp'; then $(CYGPATH_W) 'src/TestIO.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestIO.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/UnitTest-TestIO.Tpo src/$(DEPDIR)/UnitTest-TestIO.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/TestIO.cpp' object='src/UnitTest-TestIO.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o UnitTest-TestIO.obj `if test -f 'src/TestIO.cpp'; then $(CYGPATH_W) 'src/TestIO.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestIO.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(UnitTest_CXXFLAGS) $(CXXFLAGS) -c -o src/UnitTest-TestIO.obj `if test -f 'src/TestIO.cpp'; then $(CYGPATH_W) 'src/TestIO.cpp'; else $(CYGPATH_W) '$(srcdir)/src/TestIO.cpp'; fi`
 
 .cpp.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
 .cpp.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
@@ -630,6 +667,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f gtest/$(DEPDIR)/$(am__dirstamp)
+	-rm -f gtest/$(am__dirstamp)
+	-rm -f src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -639,7 +680,7 @@ clean: clean-am
 clean-am: clean-generic clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf gtest/$(DEPDIR) src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -685,7 +726,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf gtest/$(DEPDIR) src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

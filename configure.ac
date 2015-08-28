@@ -11,7 +11,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.57])
-AC_INIT([JHPCN-DF], [1.0.1], [keno@riken.jp], [JHPCN-DF])
+AC_INIT([JHPCN-DF], [1.1.0], [keno@riken.jp], [JHPCN-DF])
 
 echo "----------------------------------------"
 echo "Running JHPCN-DF Configure Script"
@@ -65,8 +65,18 @@ AM_INIT_AUTOMAKE()
 # revision No.
 #
 
-JHPCNDF_REVISION="20150819_1600"
+JHPCNDF_REVISION="20150828_1500"
 AC_SUBST(JHPCNDF_REVISION)
+
+
+
+#
+# compiler
+#
+
+AC_ARG_WITH(comp, [AC_HELP_STRING([--with-comp=(INTEL|FJ|GNU)],[Specify Compiler type])], , with_comp=none)
+
+
 
 #
 # check for fortran
@@ -107,21 +117,37 @@ fi
 
 
 #
-# compiler
+# f90 compiler check
 #
 
-AC_ARG_WITH(comp, [AC_HELP_STRING([--with-comp=(INTEL|FJ|GNU)],[Specify Compiler type])], , with_comp=none)
+if test x"_$FC" = x"_"; then
+  if test x"_$F90" = x"_"; then
+    with_f90example="no"
+  else
+    FC=$F90
+  fi
+fi
+
+if test x"_$FCFLAGS" = x"_"; then
+  if test x"_$F90FLAGS" != x"_"; then
+    FCFLAGS=$F90FLAGS
+  fi
+fi
+
 
 
 #
-# use OpenMP version or not
+# use OpenMP directives
 #
 AC_ARG_WITH(openmp, [AC_HELP_STRING([--with-openmp=(yes|no)],[use OpenMP[yes]])], , with_openmp=yes)
 
+
+
 #
-# use sse option or not
+# use SSE option
 #
 AC_ARG_WITH(sse, [AC_HELP_STRING([--with-sse=(yes|no)],[use SSE instructions[yes]])], , with_sse=yes)
+
 
 
 #
@@ -205,10 +231,13 @@ LDFLAGS="$LDFLAGS $LZ4_LDFLAGS"
 #
 AC_ARG_WITH(example, [AC_HELP_STRING([--with-example=(no|yes)],[make example [no]])], , with_example=no)
 
+
+
 #
 # test
 #
 AC_ARG_WITH(tests, [AC_HELP_STRING([--with-tests=(no|yes)],[make tests [no]])], , with_tests=no)
+
 
 
 #
@@ -288,6 +317,8 @@ if test x"$with_sse" = x"yes" ; then
   fi
 fi
 
+
+
 #
 # MAKE_SUB_DIRS
 #
@@ -301,6 +332,7 @@ if test x"$with_example" = x"yes" ; then
     MAKE_SUB_DIRS="$MAKE_SUB_DIRS examples/Fortran"
   fi
 fi
+
 if test x"$with_tests" = x"yes" ; then
   MAKE_SUB_DIRS="$MAKE_SUB_DIRS tests/PerformanceTest tests/UnitTest"
   CXXFLAGS="$CXXFLAGS -DGTEST_HAS_PTHREAD=0"

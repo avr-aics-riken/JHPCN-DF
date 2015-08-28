@@ -12,6 +12,7 @@
 
 ------------------
 2015-08-28
+- packaging, update INSTALL
 - bug fix in Unit Test
 - support --with-sse and --with-test configure option
 
